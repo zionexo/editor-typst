@@ -59,9 +59,9 @@ npm.cmd run check                                                     # misurato
 npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in ~6 min
 ```
 
-Ultimo build di produzione 2026-10-26 11:59, **versione 0.1.1** (Stampa + scheda Gantt su gantt-newgen incorporato,
-risincronizzato con la scorciatoia `week-iso` nelle intestazioni, D-150 del pacchetto; la scheda non la offre ancora):
-`typster.exe` 41.762.304 byte, SHA-256 `425A8BAF87197F39CF32C7C29C210F69099006E308A5A8688B90620FF3789BC5`,
+Ultimo build di produzione 2026-10-26 13:15, **versione 0.1.1** (Stampa + scheda Gantt su gantt-newgen incorporato,
+risincronizzato con la scorciatoia `week-iso` nelle intestazioni, D-150 del pacchetto; la scheda la offre come «Mese e settimana ISO»):
+`typster.exe` 41.762.304 byte, SHA-256 `E0836A9A8F05D60BBA5864AA0EA6DD7F7090751E0AE5EAEB95B61C79FF87C3CA`,
 con `WebView2Loader.dll`. È l'**unico exe rimasto** nel progetto, in **`dist\`** (le altre copie in `output\`
 sono state eliminate il 2026-10-26; restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0,
 entrambi vecchi e da rigenerare). Prova di avvio: vivo a 14 s, chiusura pulita.

@@ -56,6 +56,7 @@ vero(!codice([a("A", "2026-01-05", "2026-01-12")]).includes("  start:"), "senza 
 
 // opzioni: intestazioni, «oggi» (spento di default)
 vero(codice([a("A", "2026-01-05", "2026-01-12")], [], { ...opz, intestazioni: "anno-trimestre", oggi: false }).includes('headers: ("year", "quarter"),\n  show-today: false,'), "intestazioni anno/trimestre, oggi spento");
+vero(codice([a("A", "2026-01-05", "2026-01-12")], [], { ...opz, intestazioni: "mese-settimana-iso" }).includes('headers: ("month", "week-iso"),'), "settimana ISO");
 vero(INTESTAZIONI.every((h) => codice([a("A", "2026-01-05", "2026-01-12")], [], { ...opz, intestazioni: h.id }).includes(`headers: (${h.livelli.map((l) => `"${l}"`).join(", ")}),`)), "ogni combinazione di intestazioni è generata");
 
 // gruppi, completamento, avanzamento, dipendenze (id solo per chi è citato), tipi, pietre miliari

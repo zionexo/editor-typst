@@ -40,6 +40,7 @@ export const TIPI_DIPENDENZA: readonly { id: TipoDipendenza; etichetta: string; 
 /** Combinazioni di intestazioni (dal livello più grossolano al più fine). */
 export const INTESTAZIONI: readonly { id: string; etichetta: string; livelli: readonly string[] }[] = [
   { id: "mese-settimana", etichetta: "Mese e settimana", livelli: ["month", "week"] },
+  { id: "mese-settimana-iso", etichetta: "Mese e settimana ISO", livelli: ["month", "week-iso"] },
   { id: "anno-trimestre", etichetta: "Anno e trimestre", livelli: ["year", "quarter"] },
   { id: "anno-mese", etichetta: "Anno e mese", livelli: ["year", "month"] },
   { id: "mese-giorno", etichetta: "Mese e giorno", livelli: ["month", "day"] },

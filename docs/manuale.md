@@ -213,7 +213,7 @@ Per i diagrammi di Gantt (cronoprogrammi) con date reali, con il pacchetto *gant
 2. **Pietre miliari:** nome, data e, se vuoi, la data visibile.
 3. **Diagramma:** puoi fissare l'intervallo mostrato (altrimenti si ricava dalle date) e
    aggiungere didascalia ed etichetta (crea una figura citabile). Scegli le **intestazioni**
-   dell'asse (mese e settimana, anno e trimestre, anno e mese, mese e giorno, settimana e giorno).
+   dell'asse (mese e settimana, mese e settimana ISO, anno e trimestre, anno e mese, mese e giorno, settimana e giorno).
    La **linea «oggi»** è spenta di default: accesa, estende l'intervallo fino a oggi.
 4. **Inserisci nel documento.** **Carica un esempio** riempie la scheda con un piccolo progetto per
    vedere come si compila.

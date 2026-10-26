@@ -182,7 +182,7 @@ In linea #mi(`x^2`) e vedi @eq:fisica.
 #[test]
 fn gantt_newgen_incorporato_compila() {
     let intestazione = "#import \"@local/gantt-newgen:0.1.0\": gantt\n\n";
-    let casi: [(&str, &str); 8] = [
+    let casi: [(&str, &str); 9] = [
         (
             "semplice",
             r##"#gantt((
@@ -231,6 +231,26 @@ fn gantt_newgen_incorporato_compila() {
             r##"#gantt((
   locale: "it",
   headers: ("month", "week"),
+  show-today: false,
+  tasks: (
+    (name: "Preparazione", subtasks: (
+      (name: "Analisi dei requisiti", start: "2026-06-01", end: "2026-06-07", done: "2026-06-06", progress: 100, id: "a1"),
+      (name: "Progettazione", start: "2026-06-08", end: "2026-06-21", progress: 40, id: "a2", dependencies: ((id: "a1"),)),
+    )),
+    (name: "Sviluppo", start: "2026-06-22", end: "2026-07-26", id: "a3", dependencies: ((id: "a2"),)),
+    (name: "Collaudo", start: "2026-07-27", end: "2026-08-10", dependencies: ((id: "a3"),)),
+  ),
+  milestones: (
+    (name: "Consegna", date: "2026-08-10", show-date: true),
+  ),
+))
+"##,
+        ),
+        (
+            "intestazioni-mese-settimana-iso",
+            r##"#gantt((
+  locale: "it",
+  headers: ("month", "week-iso"),
   show-today: false,
   tasks: (
     (name: "Preparazione", subtasks: (
