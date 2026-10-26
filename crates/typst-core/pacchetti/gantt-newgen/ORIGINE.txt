@@ -1,6 +1,6 @@
 Pacchetto: gantt-newgen 0.1.0 (autore: nexodux, LGPL-3.0-or-later)
-Sincronizzato il: 2026-10-23 17:29
-File: 23   Impronta dell'insieme (SHA-256): e9d530f083dea2b95c7f1982860dfee5123610c7c2e76e9875dd5d1436109fd1
+Sincronizzato il: 2026-10-26 11:49
+File: 23   Impronta dell'insieme (SHA-256): 1d86560013e92f0c07afd40835e8f78ae54745bbea22ac6fec42a18cab54bd74
 Origine: cartella del progetto 'typst_gantty' (sviluppo separato); non modificare qui:
 rilanciare tools\sincronizza-gantt-newgen.ps1 dopo ogni modifica del pacchetto.
 
@@ -25,5 +25,5 @@ ef7fb8f096e5322928699171dc3bc68cbccc632d72b23facce05f8f20663f494  src/render/hea
 19fdd742e199cf0865d886c16659a119dd17cbeb9477271e13aeb8dacbc372c7  src/style.typ
 4724402150d59e89a150f140252e38700b4f3980f5ad796ce86eb316d8d67876  src/timeline.typ
 651d181d25f1e71ab82d694cc6c1bf02a024dd0835af8288d69c527d19988d2e  src/units.typ
-81fb4fd0afe7b1682b7518ce7400da50d350cb46f5fb3876d83bfd131336327f  src/validate.typ
+c8508447cbf779e1fff725323774e6744e33d1911f56e1572e4f6a53d838c94a  src/validate.typ
 3162dc036e941aab9b6a6793c16d25e5d20d183ffff26fe7ef4ebfefb12360ed  typst.toml

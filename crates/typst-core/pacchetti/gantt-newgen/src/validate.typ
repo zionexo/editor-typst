@@ -897,8 +897,62 @@
     } else {
       fail("E-VAL-03", percorso, locale, argomenti: (expected: "string|dictionary"), received: nome-tipo(h))
     }
+    // D-150 (decisione dell'utente, D-151, 2026-10-26): scorciatoia
+    // "week-iso" -> `(unit: "week", format: "iso")`, risolta QUI,
+    // PRIMA di E-HDR-01/02 (come da specifica, RF4) -- cosi' tutto cio'
+    // che segue (E-HDR-01/02/04 sotto, `units.risolvi-formato`,
+    // `timeline.typ`, il render) vede SOLO "week" col formato "iso",
+    // MAI la stringa "week-iso": non e' un'unita' del registry (RF1,
+    // resta di 5 unita'), e' un alias risolto solo qui. Accettata sia
+    // come stringa NUDA (`normalizzato` era gia' la stringa "week-iso",
+    // va PROMOSSA a dizionario: "week-iso" da sola non e' un'unita'
+    // valida, "week" da sola perderebbe il formato) sia come `unit:` di
+    // un dizionario (`normalizzato` e' gia' `h-norm`, con le altre
+    // chiavi — `align`/`fill`/... — gia' normalizzate: qui si
+    // sovrascrivono SOLO `unit`/`format`).
+    //
+    // Un `format` esplicito insieme a `unit: "week-iso"` (regola di
+    // dettaglio lasciata a `typst-dev` dalla specifica, D-150): se
+    // diverso da "iso" CONTRADDICE l'alias (l'utente ha scritto due
+    // cose incompatibili: l'alias impone "iso", un altro `format`
+    // chiederebbe un'altra resa) -> **E-HDR-04** ("format not allowed
+    // for 'week-iso'", RIUSATO as-is: stesso identico testo/token di
+    // quando un `format` non e' nella tavola di un'unita', coerente con
+    // cosa succederebbe scrivendo un formato sconosciuto per "week" —
+    // zero testo `it`/`en` nuovo, scelta deliberata). `format: "iso"`
+    // esplicito è ridondante ma ammesso (nessun errore): l'utente ha
+    // solo ripetuto cio' che l'alias intende gia'. Ipotesi scartata:
+    // "l'ultimo scritto vince" (il `format` dell'utente silenziosamente
+    // sovrascrive l'alias) — meno prevedibile, nasconderebbe un refuso
+    // (es. `format: "start-day"` per abitudine da gantty) dietro un
+    // comportamento muto.
+    if nome == "week-iso" {
+      if formato-utente != none and formato-utente != "iso" {
+        fail(
+          "E-HDR-04", percorso + ".format", locale,
+          argomenti: (unit: "week-iso"),
+          received: repr(formato-utente), allowed: ("iso",),
+        )
+      }
+      normalizzato = if type(normalizzato) == dictionary {
+        normalizzato + (unit: "week", format: "iso")
+      } else {
+        (unit: "week", format: "iso")
+      }
+      nome = "week"
+      formato-utente = "iso"
+    }
     if nome not in registro {
-      fail("E-HDR-01", percorso + ".unit", locale, received: repr(nome), allowed: registro.keys().sorted())
+      // "week-iso" elencata fra gli ammessi anche se NON e' una chiave
+      // del registry (D-150/D-151): a questo punto del codice `nome` e'
+      // GIA' "week" se l'input era valido (ramo sopra), quindi non
+      // finisce mai qui per un "week-iso" corretto — ma un utente che
+      // scrive "weeks-iso" o simile deve comunque VEDERE "week-iso" fra
+      // i nomi ammessi, non solo le 5 unita' del registry.
+      fail(
+        "E-HDR-01", percorso + ".unit", locale, received: repr(nome),
+        allowed: (registro.keys() + ("week-iso",)).dedup().sorted(),
+      )
     }
     let def = registro.at(nome)
     // E-HDR-04 (parola chiave/funzione di `format` non ammessa): la
