@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="it" data-stile="classico">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Typster</title>
+    <style>
+      /* Temi: tavolozza Catppuccin, ogni variabile è `light-dark(chiaro, scuro)`.
+         `color-scheme` decide il ramo: senza `data-tema` segue il sistema
+         (niente flash prima che src/aspetto.ts imposti il tema risolto);
+         `data-tema="chiaro"|"scuro"` lo forza. Contrasti del chiaro >= 4.5:1
+         (WCAG) verificati con script. */
+      :root {
+        color-scheme: light dark;
+        --sfondo: light-dark(#eff1f5, #1e1e2e);
+        --pannello: light-dark(#e6e9ef, #181825);
+        --profondo: light-dark(#dce0e8, #11111b);
+        --bordo: light-dark(#ccd0da, #313244);
+        --rilievo: light-dark(#c6cad6, #45475a);
+        --errore-sfondo: light-dark(#fbe4e8, #45475a);
+        --testo: light-dark(#4c4f69, #cdd6f4);
+        --testo-2: light-dark(#4f5268, #bac2de);
+        --testo-tenue: light-dark(#4a4d63, #a6adc8);
+        --muto: light-dark(#5a5d70, #585b70);
+        --muto-2: light-dark(#575a6e, #6c7086);
+        --accento: light-dark(#1853d4, #89b4fa);
+        --accento-hover: light-dark(#1546b8, #74c7ec);
+        --su-accento: light-dark(#eff1f5, #1e1e2e);
+        --errore: light-dark(#c00d33, #f38ba8);
+        --giallo: light-dark(#f5e6c0, #f9e2af);
+        --su-giallo: light-dark(#4c4f69, #1e1e2e);
+        --verde: light-dark(#2a7a1a, #a6e3a1);
+        --verde-hover: light-dark(#0f7377, #94e2d5);
+        --ombra: light-dark(rgba(76, 79, 105, 0.25), rgba(0, 0, 0, 0.5));
+        --ombra-pannello: light-dark(rgba(76, 79, 105, 0.2), rgba(0, 0, 0, 0.4));
+        --velo: light-dark(rgba(76, 79, 105, 0.35), rgba(0, 0, 0, 0.5));
+
+        /* Token aggiunti per gli stili grafici (src/stili/*.css). I valori qui sono
+           quelli del Classico: lasciano l'aspetto storico invariato. Gli altri stili
+           li sovrascrivono con `:root[data-stile="..."]`. */
+        --controllo: light-dark(#6c6f85, #7f849c);
+        --avviso: light-dark(#8a5301, #f9e2af);
+        --su-verde: light-dark(#eff1f5, #1e1e2e);
+        --fuoco: var(--accento);
+        --carta: white; /* colore della pagina in anteprima */
+        --carta-sec: #5c5f77;
+        --carta-link: #1853d4;
+        --inchiostro: #000;
+        --sint-titolo: var(--accento);
+        --sint-funzione: light-dark(#8839ef, #cba6f7);
+        --sint-stringa: var(--verde);
+        --sint-numero: light-dark(#a04800, #fab387);
+        --sint-commento: var(--muto);
+        --sint-math: light-dark(#0f7377, #94e2d5);
+        --sint-rif: light-dark(#a8183c, #f38ba8);
+        --sans: system-ui, sans-serif;
+        --serif: Georgia, "Times New Roman", serif;
+        --mono: "JetBrains Mono", "Fira Code", monospace;
+      }
+      :root[data-tema="chiaro"] { color-scheme: light; }
+      :root[data-tema="scuro"] { color-scheme: dark; }
+
+      /* Reset e layout base */
+      *, *::before, *::after { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        background: var(--sfondo);
+        color: var(--testo);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Barra superiore */
+      header {
+        padding: 8px 16px;
+        background: var(--pannello);
+        display: flex;
+        align-items: center;
+        gap: 8px; /* era 12: compensa il pallino di salvataggio (+18 px) per non far crescere la barra a 1280 px */
+        border-bottom: 1px solid var(--bordo);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accento);
+      }
+      /* Pulsanti dell'header: stile di base (secondario). */
+      header button {
+        padding: 6px 14px;
+        background: var(--bordo);
+        color: var(--testo);
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      header button:hover { background: var(--rilievo); }
+      header button:disabled { opacity: 0.5; cursor: not-allowed; }
+      /* "Compila": pulsante primario accentato. */
+      header button#btn-compila { background: var(--accento); color: var(--su-accento); }
+      header button#btn-compila:hover { background: var(--accento-hover); }
+      /* «Opzioni»: solo icona (nome accessibile in aria-label/title), per non far andare a capo l'header a 1280 px. */
+      header button#btn-opzioni { display: inline-flex; align-items: center; justify-content: center; }
+      .icona-opzioni { display: block; }
+      /* Nome del file corrente: spinto a destra, seguito dallo stato. */
+      #file-corrente {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex: none; /* come prima: sono gli altri elementi a cedere spazio, non il nome */
+      }
+      #nome-file {
+        font-size: 0.85rem;
+        color: var(--testo);
+        /* Un nome lungo si accorcia con i puntini (nome intero nel title) invece di mandare a capo la barra. */
+        flex: none;
+        max-width: 24ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* Pallino di salvataggio: stato in forma (non solo colore) e in parole (aria-label/title).
+         verde = salvato (cerchio pieno), ambra = scrittura in corso (anello con punto),
+         rosso = modifiche non salvate (rombo), neutro = nuovo documento (anello vuoto).
+         Nessuna animazione: nulla da disattivare con prefers-reduced-motion. */
+      #pallino-salvataggio {
+        flex: none;
+        box-sizing: border-box;
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      #pallino-salvataggio[data-stato="salvato"] { background: var(--verde); }
+      #pallino-salvataggio[data-stato="in-corso"] {
+        border: 2px solid var(--avviso);
+        background: radial-gradient(circle, var(--avviso) 0 1.5px, transparent 2px);
+      }
+      #pallino-salvataggio[data-stato="non-salvato"] {
+        width: 9px;
+        height: 9px;
+        margin: 0 1.5px;
+        border-radius: 1px;
+        background: var(--errore);
+        transform: rotate(45deg);
+      }
+      #pallino-salvataggio[data-stato="nuovo"] { border: 2px solid var(--controllo); }
+      @media (forced-colors: active) {
+        #pallino-salvataggio { forced-color-adjust: none; }
+      }
+
+      /* Layout a due colonne: editor | anteprima */
+      main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* Pannello editor (sinistra) */
+      #pannello-editor {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--bordo);
+        min-width: 0;
+      }
+
+      /* Barra di formattazione (sopra l'editor) */
+      #barra-formattazione {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 8px;
+        background: var(--pannello);
+        border-bottom: 1px solid var(--bordo);
+        flex-wrap: wrap;
+      }
+      #barra-formattazione button {
+        padding: 4px 8px;
+        background: var(--bordo);
+        color: var(--testo);
+        border: none;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        min-width: 28px;
+      }
+      #barra-formattazione button:hover { background: var(--rilievo); }
+      #barra-formattazione .separatore {
+        width: 1px;
+        align-self: stretch;
+        background: var(--bordo);
+        margin: 2px 4px;
+      }
+      /* Container dell'editor CodeMirror: riempie il pannello con scroll interno.
+         `min-height: 0` è necessario perché un flex item si rimpicciolisca sotto
+         la dimensione del contenuto (insidia flexbox + CodeMirror). */
+      #sorgente {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+      /* L'editor riempie il container; lo scroll avviene su .cm-scroller. */
+      .cm-editor { height: 100%; font-size: var(--font-editor, 14px); }
+      .cm-scroller {
+        overflow: auto;
+        font-family: var(--mono);
+        line-height: 1.5;
+      }
+      /* Tooltip dell'hover (assistenza typst-ide) */
+      .cm-tooltip-typst {
+        padding: 6px 10px;
+        max-width: 420px;
+        white-space: pre-wrap;
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+
+      .cm-firma-typst strong { color: var(--accento, inherit); }
+      .cm-firma-typst { font-family: var(--mono); white-space: normal; overflow-wrap: anywhere; }
+      .cm-firma-typst > span, .cm-firma-typst > strong { white-space: nowrap; }
+
+      /* Riquadro errori (sotto all'editor) */
+      #errori {
+        display: none;
+        padding: 6px 12px;
+        background: var(--errore-sfondo);
+        border-top: 1px solid var(--errore);
+        color: var(--testo);
+        font-size: 0.85rem;
+        max-height: min(40vh, 260px);
+        overflow-y: auto;
+      }
+      #errori.visibile { display: block; }
+      /* Messaggio libero (errori di I/O, di comandi). */
+      #errori .errori-testo { white-space: pre-wrap; }
+      #errori .errori-testo:empty { display: none; }
+      #errori .errori-intestazione { font-weight: 600; margin: 0 0 4px; }
+      #errori .errori-intestazione:empty { display: none; }
+      #errori .errori-elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+      /* Una riga per diagnostico: barra laterale + parola «Errore»/«Avviso» (mai solo colore). */
+      #errori .errore-corpo {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 4px 8px;
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        border-left: 3px solid var(--errore);
+        border-radius: 0 4px 4px 0;
+      }
+      #errori li[data-gravita="avviso"] .errore-corpo { border-left-color: var(--avviso); }
+      #errori button.errore-corpo { cursor: pointer; }
+      #errori button.errore-corpo:hover { background: color-mix(in srgb, var(--testo) 10%, transparent); }
+      #errori .errore-gravita { font-weight: 700; margin-right: 0.5em; }
+      #errori .errore-messaggio { white-space: pre-wrap; overflow-wrap: anywhere; }
+      #errori .errore-posizione { display: block; font-size: 0.92em; }
+      #errori button.errore-corpo .errore-posizione { text-decoration: underline dotted; text-underline-offset: 2px; }
+      /* Dettagli (origine, traccia, suggerimenti): tono attenuato ma sempre ≥ 4,5:1 sullo sfondo. */
+      #errori .errore-dettaglio {
+        display: block;
+        font-size: 0.92em;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: color-mix(in srgb, var(--testo) 92%, var(--errore-sfondo));
+      }
+
+      /* Avvisi non fatali di una conversione (sotto all'editor, chiudibili) */
+      #avvisi-conversione {
+        display: none;
+        padding: 6px 12px;
+        background: var(--rilievo);
+        border-top: 1px solid var(--bordo);
+        color: var(--testo);
+        font-size: 0.82rem;
+        white-space: pre-wrap;
+        max-height: 140px;
+        overflow-y: auto;
+      }
+      #avvisi-conversione.visibile { display: block; }
+      #avvisi-conversione button {
+        float: right; margin-left: 8px; padding: 1px 8px; border: none; border-radius: 4px;
+        background: var(--bordo); color: var(--testo); cursor: pointer;
+      }
+
+      /* Pannello anteprima SVG (destra) */
+      #pannello-anteprima {
+        flex: 1;
+        background: var(--profondo);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px;
+        gap: 16px;
+      }
+      .pagina-svg {
+        background: var(--carta); /* la pagina resta su sfondo carta in entrambi i temi (bianca nel Classico) */
+        box-shadow: 0 2px 16px var(--ombra);
+        max-width: 100%;
+        flex-shrink: 0; /* colonna flex con overflow: il segnaposto non si comprime */
+      }
+      .pagina-svg svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        cursor: pointer; /* clic → cursore nel sorgente (sincronizzazione) */
+      }
+      /* Marcatore della sincronizzazione cursore → anteprima (sincronizzazione.ts):
+         segue l'accento del tema; non intercetta i clic (passano al jump sorgente). */
+      .marcatore-sync {
+        fill: var(--accento);
+        fill-opacity: 0.3;
+        pointer-events: none;
+      }
+      #placeholder-anteprima {
+        color: var(--muto);
+        font-size: 0.9rem;
+        margin-top: 40px;
+      }
+
+      /* Barra laterale a pannelli (F5-019): activity bar · pannello · divisore.
+         Solo variabili dei temi (light-dark); larghezza del pannello impostata da
+         barra-laterale.ts con element.style (compatibile con la CSP di produzione). */
+      #barra { display: flex; flex: 0 0 auto; min-width: 0; background: var(--pannello); }
+      #barra[hidden], #barra-divisore[hidden], #barra-pannelli[hidden] { display: none; }
+      #barra-attivita {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        flex: 0 0 44px; width: 44px; padding: 4px 0;
+        background: var(--profondo); border-right: 1px solid var(--bordo);
+      }
+      .barra-scheda {
+        display: flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; padding: 0;
+        background: none; color: var(--testo-tenue);
+        border: none; border-left: 2px solid transparent; border-radius: 6px; cursor: pointer;
+      }
+      .barra-scheda:hover { background: var(--bordo); color: var(--testo); }
+      .barra-scheda.attiva { color: var(--accento); border-left-color: var(--accento); }
+      .barra-icona { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+      .barra-scheda:focus-visible, .barra-azione:focus-visible, .barra-pulsante:focus-visible,
+      .indice-riga:focus-visible, .file-riga:focus-visible, #barra-divisore:focus-visible {
+        outline: 2px solid var(--accento); outline-offset: -2px;
+      }
+      #barra-pannelli { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+      .barra-sezione { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+      .barra-sezione[hidden] { display: none; }
+      .barra-titolo {
+        margin: 0; padding: 8px 12px; font-size: 0.72rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.06em; color: var(--testo-tenue);
+      }
+      .barra-corpo { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+      #barra-divisore {
+        flex: 0 0 4px; width: 4px; cursor: col-resize;
+        background: var(--bordo); border: none; padding: 0;
+      }
+      #barra-divisore:hover, #barra-divisore:focus-visible { background: var(--accento); }
+      .barra-azioni { display: flex; align-items: center; gap: 6px; padding: 0 10px 6px; }
+      .barra-azione {
+        flex: 0 0 auto; width: 26px; height: 26px; padding: 0;
+        background: var(--bordo); color: var(--testo); border: none; border-radius: 4px;
+        cursor: pointer; font-size: 0.9rem;
+      }
+      .barra-azione:hover { background: var(--rilievo); }
+      .barra-pulsante {
+        margin-top: 8px; padding: 6px 12px; background: var(--accento); color: var(--su-accento);
+        border: none; border-radius: 5px; font-weight: 600; font-size: 0.82rem; cursor: pointer;
+      }
+      .barra-pulsante:hover { background: var(--accento-hover); }
+      .pannello-vuoto { margin: 0; padding: 8px 12px; color: var(--testo-tenue); font-size: 0.82rem; line-height: 1.5; }
+      .pannello-vuoto[hidden] { display: none; }
+
+      /* Alberi (indice del documento, file del progetto): righe piatte con aria-level */
+      .albero { padding: 2px 0 8px; }
+      .albero[hidden] { display: none; }
+      .indice-riga, .file-riga {
+        display: flex; align-items: baseline; gap: 8px;
+        padding: 3px 10px; font-size: 0.85rem; color: var(--testo);
+        border-left: 2px solid transparent; cursor: pointer; user-select: none;
+      }
+      .indice-riga:hover, .file-riga:hover { background: var(--profondo); }
+      .indice-riga.corrente, .file-riga.selezionata {
+        background: var(--bordo); border-left-color: var(--accento); font-weight: 600;
+      }
+      .indice-testo, .file-nome { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .indice-pagina { margin-left: auto; flex: 0 0 auto; color: var(--testo-tenue); font-size: 0.72rem; }
+      .file-radice { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        font-size: 0.82rem; font-weight: 600; color: var(--testo-2); }
+      .file-riga::before { content: ""; display: inline-block; flex: 0 0 0.9em; width: 0.9em; color: var(--testo-tenue); }
+      .file-riga[aria-expanded="false"]::before { content: "\25B8"; }
+      .file-riga[aria-expanded="true"]::before { content: "\25BE"; }
+      .file-riga[aria-disabled="true"] { color: var(--testo-tenue); cursor: default; }
+
+      /* Pannello pacchetti (ora dentro la barra laterale) */
+      .pkg-pannello { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+      .pkg-ricerca-riga { display: flex; gap: 6px; margin: 2px 10px 6px; }
+      #ricerca-pacchetti {
+        flex: 1; min-width: 0; padding: 6px 10px;
+        background: var(--profondo); color: var(--testo);
+        border: 1px solid var(--bordo); border-radius: 6px; outline: none;
+        font-size: 0.85rem;
+      }
+      #ricerca-pacchetti:focus-visible { border-color: var(--accento); }
+      #stato-pacchetti { padding: 0 12px 6px; color: var(--testo-tenue); font-size: 0.78rem; }
+      #lista-pacchetti { flex: 1; overflow-y: auto; padding: 0 10px 12px; }
+      .pkg-card {
+        background: var(--sfondo); border: 1px solid var(--bordo); border-radius: 8px;
+        padding: 10px; margin-bottom: 8px;
+      }
+      .pkg-titolo { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+      .pkg-nome { font-weight: 600; color: var(--testo); }
+      .pkg-versione { color: var(--testo-tenue); font-size: 0.78rem; }
+      .pkg-badge {
+        background: var(--giallo); color: var(--su-giallo); border-radius: 4px;
+        padding: 1px 6px; font-size: 0.7rem; font-weight: 600;
+      }
+      .pkg-agg {
+        background: var(--accento); color: var(--su-accento); border-radius: 4px;
+        padding: 1px 6px; font-size: 0.7rem; font-weight: 600;
+      }
+      #agg-documento {
+        margin: 0 12px 8px; padding: 6px 10px; border: 1px solid var(--giallo); border-radius: 6px;
+        background: var(--profondo); color: var(--testo-2); font-size: 0.78rem; line-height: 1.5;
+      }
+      #agg-documento[hidden] { display: none; }
+      #agg-documento strong { color: var(--testo); display: block; }
+      .pkg-desc { color: var(--testo-2); font-size: 0.82rem; margin: 6px 0; line-height: 1.4; }
+      .pkg-azioni { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .pkg-categorie { color: var(--muto-2); font-size: 0.72rem; flex: 1; }
+      .pkg-installa {
+        background: var(--accento); color: var(--su-accento); border: none; border-radius: 5px;
+        padding: 5px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      }
+      .pkg-installa:hover { background: var(--accento-hover); }
+      .pkg-installa:disabled, .pkg-template:disabled { opacity: 0.5; cursor: not-allowed; }
+      .pkg-template {
+        background: var(--verde); color: var(--su-accento); border: none; border-radius: 5px;
+        padding: 5px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      }
+      .pkg-template:hover { background: var(--verde-hover); }
+
+      /* Modale (pubblicazione @local) */
+      .modal-overlay {
+        position: fixed; inset: 0; z-index: 100;
+        background: var(--velo);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .modal-overlay[hidden] { display: none; }
+      .modal {
+        background: var(--pannello); border: 1px solid var(--bordo); border-radius: 10px;
+        padding: 18px 20px; width: 440px; max-width: 90vw;
+        display: flex; flex-direction: column; gap: 10px;
+        box-shadow: 0 8px 32px var(--ombra);
+      }
+      .modal strong { color: var(--accento); font-size: 1rem; }
+      .modal-desc { color: var(--testo-2); font-size: 0.85rem; margin: 0; line-height: 1.45; }
+      .modal-desc code { background: var(--bordo); padding: 1px 5px; border-radius: 4px; }
+      .modal label {
+        display: flex; flex-direction: column; gap: 4px;
+        font-size: 0.85rem; color: var(--testo);
+      }
+      .modal input {
+        background: var(--profondo); color: var(--testo); border: 1px solid var(--bordo);
+        border-radius: 6px; padding: 7px 10px; font-size: 0.9rem; outline: none;
+      }
+      .modal select {
+        background: var(--profondo); color: var(--testo); border: 1px solid var(--bordo);
+        border-radius: 6px; padding: 7px 10px; font-size: 0.9rem; outline: none;
+      }
+      .modal label[hidden], .modal .modal-desc[hidden] { display: none; }
+      .modal label.riga-spunta { flex-direction: row; align-items: center; gap: 8px; }
+      .modal label.riga-spunta input { padding: 0; }
+      .modal-messaggio { font-size: 0.82rem; color: var(--errore); min-height: 1em; }
+      .modal-azioni { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+      .modal-azioni button {
+        padding: 7px 14px; border: none; border-radius: 6px;
+        font-weight: 600; cursor: pointer; font-size: 0.85rem;
+      }
+      #local-annulla, #esporta-annulla, #cronologia-chiudi { background: var(--bordo); color: var(--testo); }
+      #local-annulla:hover, #esporta-annulla:hover, #cronologia-chiudi:hover { background: var(--rilievo); }
+      #cronologia-ripristina { background: var(--verde); color: var(--su-accento); }
+      #cronologia-ripristina:hover { background: var(--verde-hover); }
+      #cronologia-ripristina:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      /* Cronologia versioni (F5-013): elenco + anteprima del testo della versione */
+      .modal-larga { width: 760px; }
+      .cronologia-corpo { display: flex; gap: 10px; min-height: 280px; }
+      #cronologia-elenco { flex: 0 0 230px; }
+      #cronologia-anteprima {
+        flex: 1; margin: 0; overflow: auto; max-height: 320px;
+        background: var(--profondo); color: var(--testo); border: 1px solid var(--bordo);
+        border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; white-space: pre-wrap;
+      }
+      #local-pubblica, #esporta-conferma { background: var(--verde); color: var(--su-accento); }
+      #local-pubblica:hover, #esporta-conferma:hover { background: var(--verde-hover); }
+      #local-pubblica:disabled, #esporta-conferma:disabled { opacity: 0.5; cursor: not-allowed; }
+      /* Palette comandi (F5-006): riusa .modal-overlay, ancorata in alto */
+      .palette-overlay { align-items: flex-start; padding-top: 12vh; }
+      .palette {
+        background: var(--pannello); border: 1px solid var(--bordo); border-radius: 10px;
+        width: 560px; max-width: 90vw; overflow: hidden;
+        box-shadow: 0 8px 32px var(--ombra);
+      }
+      #palette-input {
+        display: block; width: 100%; box-sizing: border-box;
+        background: var(--profondo); color: var(--testo); border: none;
+        border-bottom: 1px solid var(--bordo); padding: 12px 14px; font-size: 0.95rem; outline: none;
+      }
+      #palette-input:focus-visible { box-shadow: inset 0 -2px 0 var(--accento); }
+      #palette-lista { list-style: none; margin: 0; padding: 4px; max-height: 50vh; overflow-y: auto; }
+      #palette-lista li {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 7px 10px; border-radius: 6px; font-size: 0.88rem; color: var(--testo); cursor: pointer;
+      }
+      #palette-lista li[aria-selected="true"] { background: var(--accento); color: var(--su-accento); }
+      #palette-lista kbd {
+        font: inherit; font-size: 0.78rem; white-space: nowrap;
+        color: var(--testo-tenue); background: var(--bordo);
+        border-radius: 4px; padding: 1px 6px;
+      }
+      #palette-lista li[aria-selected="true"] kbd { color: var(--testo); }
+      .visually-hidden {
+        position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <button id="btn-barra" aria-label="Barra laterale" aria-controls="barra" aria-expanded="false" title="Mostra o nascondi la barra laterale (Ctrl+Shift+B)">Barra</button>
+      <h1>Typster</h1>
+      <button id="btn-nuovo" title="Nuovo documento (Ctrl+N)">Nuovo</button>
+      <button id="btn-apri" title="Apri un file .typ o .md (Ctrl+O)">Apri</button>
+      <button id="btn-apri-cartella" title="Apri una cartella-progetto (Ctrl+Shift+O)">Apri cartella</button>
+      <button id="btn-salva" title="Salva il documento (Ctrl+S)">Salva</button>
+      <button id="btn-esporta" title="Esporta in PDF (Ctrl+E); PNG, SVG, testo, HTML, LaTeX e Markdown dalla palette comandi">Esporta PDF</button>
+      <button id="btn-stampa" title="Stampa il documento formattato">Stampa</button>
+      <button id="btn-compila" title="Compila ora">Compila</button>
+      <button id="btn-pacchetti" aria-controls="barra" aria-expanded="false" title="Apri il pannello dei pacchetti di Typst Universe">Pacchetti</button>
+      <button id="btn-local" title="Pubblica il documento come pacchetto @local">@local</button>
+      <button id="btn-aspetto" aria-label="Aspetto" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-aspetto" title="Aspetto: stile grafico e tema">Aspetto</button>
+      <button id="btn-opzioni" aria-label="Opzioni" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-opzioni" title="Opzioni: motore Typst e assistenza alla scrittura"><svg class="icona-opzioni" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.7" fill="currentColor"/><circle cx="11" cy="8" r="1.7" fill="currentColor"/><circle cx="6.5" cy="12" r="1.7" fill="currentColor"/></svg></button>
+      <button id="btn-converti" title="Converti il documento Typst in Markdown">&rarr; Markdown</button>
+      <span id="file-corrente"><span id="pallino-salvataggio"></span><span id="nome-file" aria-live="polite"></span><span id="annuncio-salvataggio" class="visually-hidden" aria-live="polite"></span></span>
+      <span id="stato" style="font-size:0.8rem;color:var(--testo-tenue);" aria-live="polite"></span>
+    </header>
+    <main>
+      <div id="barra" hidden>
+        <div id="barra-attivita" role="tablist" aria-orientation="vertical" aria-label="Pannelli della barra laterale"></div>
+        <div id="barra-pannelli"></div>
+      </div>
+      <div id="barra-divisore" role="separator" aria-orientation="vertical" aria-label="Larghezza della barra laterale" tabindex="0" hidden></div>
+      <div id="pannello-editor">
+        <div id="barra-formattazione" role="toolbar" aria-label="Formattazione">
+          <button data-comando="grassetto" title="Grassetto" style="font-weight:bold">B</button>
+          <button data-comando="corsivo" title="Corsivo" style="font-style:italic">I</button>
+          <button data-comando="codice" title="Codice inline" style="font-family:monospace">&lt;/&gt;</button>
+          <span class="separatore"></span>
+          <button data-comando="titolo" title="Titolo">Titolo</button>
+          <button data-comando="lista" title="Lista puntata">&bull; Lista</button>
+          <button data-comando="lista-numerata" title="Lista numerata">1. Lista</button>
+          <span class="separatore"></span>
+          <button data-comando="link" title="Collegamento">Link</button>
+          <button data-comando="immagine" title="Immagine">Immagine</button>
+          <button data-comando="tabella" title="Tabella">Tabella</button>
+        </div>
+        <!-- Container dell'editor CodeMirror. Niente role/aria qui: CodeMirror
+             applica i propri attributi ARIA sull'area editabile interna; un
+             role="textbox" esterno creerebbe un textbox annidato (non valido). -->
+        <div id="sorgente"></div>
+        <div id="avvisi-conversione" role="status" aria-live="polite">
+          <button id="avvisi-conversione-chiudi" title="Chiudi gli avvisi" aria-label="Chiudi gli avvisi">Chiudi</button>
+          <span id="avvisi-conversione-testo"></span>
+        </div>
+        <div id="errori" role="region" aria-label="Errori e avvisi di compilazione"></div>
+      </div>
+      <div id="pannello-anteprima">
+        <p id="placeholder-anteprima">Scrivi del codice Typst e premi "Compila" per vedere l'anteprima.</p>
+      </div>
+    </main>
+    <div id="modal-local" class="modal-overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-local-titolo">
+        <strong id="modal-local-titolo">Pubblica come pacchetto @local</strong>
+        <p class="modal-desc">Il documento corrente diventa un pacchetto riutilizzabile,
+          importabile da altri documenti con <code>#import "@local/nome:versione"</code>.</p>
+        <label>Nome
+          <input id="local-nome" type="text" placeholder="mio-stile" autocomplete="off"
+                 spellcheck="false" pattern="[a-z0-9-]+" title="Lettere minuscole, cifre e trattini" />
+        </label>
+        <label>Versione
+          <input id="local-versione" type="text" placeholder="0.1.0" value="0.1.0" autocomplete="off" spellcheck="false" />
+        </label>
+        <div id="local-messaggio" class="modal-messaggio" aria-live="polite"></div>
+        <div class="modal-azioni">
+          <button id="local-annulla">Annulla</button>
+          <button id="local-pubblica">Pubblica</button>
+        </div>
+      </div>
+    </div>
+    <div id="modal-cronologia" class="modal-overlay" hidden>
+      <div class="modal modal-larga" role="dialog" aria-modal="true" aria-labelledby="modal-cronologia-titolo" aria-describedby="cronologia-descrizione">
+        <strong id="modal-cronologia-titolo">Cronologia versioni</strong>
+        <p id="cronologia-descrizione" class="modal-desc"></p>
+        <div class="cronologia-corpo">
+          <select id="cronologia-elenco" size="12" aria-label="Versioni salvate"></select>
+          <pre id="cronologia-anteprima" aria-label="Testo della versione selezionata"></pre>
+        </div>
+        <div id="cronologia-messaggio" class="modal-messaggio" aria-live="polite"></div>
+        <div class="modal-azioni">
+          <button id="cronologia-chiudi">Chiudi</button>
+          <button id="cronologia-ripristina" disabled>Ripristina questa versione</button>
+        </div>
+      </div>
+    </div>
+    <div id="modal-esporta" class="modal-overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-esporta-titolo" aria-describedby="esporta-aiuto-standard esporta-aiuto-file">
+        <strong id="modal-esporta-titolo">Esporta</strong>
+        <label id="esporta-riga-pagine">Pagine
+          <input id="esporta-pagine" type="text" placeholder="tutte (es. 1-3, 5, 8-)"
+                 autocomplete="off" spellcheck="false" />
+        </label>
+        <label id="esporta-riga-standard">Standard PDF
+          <select id="esporta-standard"></select>
+        </label>
+        <p id="esporta-aiuto-standard" class="modal-desc"></p>
+        <label id="esporta-riga-ppi" hidden>Risoluzione (PPI)
+          <input id="esporta-ppi" type="number" min="1" max="1200" step="1" value="144" />
+        </label>
+        <label id="esporta-riga-larghezza" hidden>Larghezza del testo (colonne)
+          <input id="esporta-larghezza" type="number" min="20" max="500" step="1" value="80" />
+        </label>
+        <label id="esporta-riga-autonomo" class="riga-spunta" hidden>
+          <input id="esporta-autonomo" type="checkbox" />
+          <span>HTML autonomo: incorpora le immagini nel file</span>
+        </label>
+        <p id="esporta-aiuto-html" class="modal-desc" hidden>Le immagini sono lette solo dalla
+          cartella del documento (massimo 8&nbsp;MiB ciascuna); quelle non incorporabili restano
+          percorsi relativi e vengono segnalate.</p>
+        <label id="esporta-riga-classe" hidden>Classe del documento LaTeX
+          <select id="esporta-classe">
+            <option value="article">article</option>
+            <option value="report">report</option>
+            <option value="book">book</option>
+          </select>
+        </label>
+        <label id="esporta-riga-carta" hidden>Formato carta
+          <select id="esporta-carta">
+            <option value="a4paper">A4</option>
+            <option value="a5paper">A5</option>
+            <option value="letterpaper">Letter</option>
+          </select>
+        </label>
+        <p id="esporta-aiuto-file" class="modal-desc" hidden>Con più pagine i file si chiamano
+          <code>nome-01</code>, <code>nome-02</code>… nella cartella scelta, a partire dal nome
+          indicato nel dialogo di salvataggio. Se alcuni di questi file esistono già,
+          prima di sovrascriverli viene chiesta conferma.</p>
+        <div id="esporta-messaggio" class="modal-messaggio" aria-live="polite"></div>
+        <div class="modal-azioni">
+          <button id="esporta-annulla">Annulla</button>
+          <button id="esporta-conferma">Esporta</button>
+        </div>
+      </div>
+    </div>
+    <div id="palette" class="modal-overlay palette-overlay" hidden>
+      <div class="palette" role="dialog" aria-modal="true" aria-label="Palette comandi">
+        <input id="palette-input" type="text" role="combobox" aria-expanded="true"
+               aria-controls="palette-lista" aria-autocomplete="list" aria-label="Cerca un comando"
+               placeholder="Digita un comando…" autocomplete="off" spellcheck="false" />
+        <ul id="palette-lista" role="listbox" aria-label="Comandi"></ul>
+        <div id="palette-stato" class="visually-hidden" aria-live="polite"></div>
+      </div>
+    </div>
+    <!-- Menu «Aspetto» (stile grafico + tema): popover riempito da src/menu-aspetto.ts -->
+    <div id="menu-aspetto" class="menu-aspetto" role="dialog" aria-label="Aspetto" hidden></div>
+    <!-- Menu «Opzioni» (motore di evidenziazione Typst): popover riempito da src/menu-opzioni.ts -->
+    <div id="menu-opzioni" class="menu-opzioni" role="dialog" aria-label="Opzioni" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+# Manifest del pacchetto Typst gantt-newgen.
+# Stato: in sviluppo (fase develop), non pubblicato. TODO di pubblicazione: ricontrollare che il nome sia
+# libero su Typst Universe (D-015). Licenza: LICENSE = LGPL-3.0, COPYING =
+# GPL-3.0 (D-022); nessuno dei due va escluso.
+#
+# `repository`/`homepage`: assenti apposta (Fase 9.2, D-138). Nessun
+# repository pubblico esiste ancora per questo progetto: inventare un URL
+# darebbe un link morto nel manifest pubblicato. Da aggiungere PRIMA della
+# pubblicazione (9.5), quando il repository esisterà davvero.
+[package]
+name = "gantt-newgen"
+version = "0.1.0"
+entrypoint = "lib.typ"
+# Implementazione indipendente ispirata a gantty di John Toohey, nessun codice
+# copiato (D-032). Licenza decisa il 2026-10-15: LGPL-3.0-or-later (D-031).
+authors = ["nexodux"]
+license = "LGPL-3.0-or-later"
+# Accorciata (review finale di Fase 9, 71 caratteri — la cifra "87" di
+# D-141 era sbagliata, corretta nell'addendum — come da linee guida di
+# Typst Universe, ~60-70: la versione precedente era 124 caratteri).
+description = "Gantt charts from real dates, with dependencies and multi-level headers"
+keywords = ["gantt", "datetime", "timeline", "schedule", "dependencies"]
+categories = ["visualization"]
+# Nessuna dipendenza (D-023). Minimo dichiarato = unica versione verificata
+# con il binding (D-024); soglia teorica dalle API (curve): 0.13.0 (non
+# verificata: nessuna CLI 0.13.x disponibile in questo ambiente).
+compiler = "0.15.0"
+# Verificato (Fase 9.2, D-138) con un grep di `toml(`/`read(`/`yaml(` in
+# lib.typ e src/**: l'UNICO dato esterno letto DAVVERO a runtime da
+# gantt() e' data/locales/{en,it}.toml (src/locale.typ) — mai esclusa.
+# config/*.toml e' letta solo da tools/ (Python), mai da Typst: esclusa.
+# example/*.typ e' compilata dalla suite di test ma esclusa dal pacchetto
+# pubblicato (RF8/RF9-D12, specs/specification.md: "esempi d'uso ...
+# compilati dai test, esclusi dal pacchetto" — gia' deciso in setup, non
+# una scelta di questa fase). LICENSE e COPYING NON compaiono qui: restano
+# sempre inclusi (D-022/D-031).
+exclude = [
+  "specs/*",
+  "tests/*",
+  "tools/*",
+  "example/*",
+  "output/*",
+  "repo/*",
+  "prova/*",
+  "config/*",
+  ".claude/*",
+  "RIPRESA.md",
+  "requirements.txt",
+  "DEVELOPMENT.md",
+  ".misura-*",
+  "*.tmp",
+  # Suggerimento S2 (review di provenienza, code-reviewer): `.gitignore`
+  # non era in `exclude` — file di sviluppo (regole Git), irrilevante
+  # per chi usa il pacchetto pubblicato. README.md, LICENSE, COPYING
+  # NON compaiono qui: restano sempre inclusi.
+  ".gitignore",
+]
+# `src/render/.gitkeep`: CANCELLATO (2a rereview, code-reviewer), non
+# escluso — la cartella ha ORA file veri (bars.typ e altri 5), il
+# segnaposto Git non serve più. Nessun altro `.gitkeep` fuori dai
+# percorsi già esclusi sopra (verificato con un `find` dedicato).

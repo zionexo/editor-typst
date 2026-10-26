@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Pannello «Strumenti» (barra laterale): lista degli strumenti, vista Modelli
+   e vista «Salva come modello». Usa solo i token correnti (si adatta ai tre
+   stili e ai due temi). Nessuna risorsa esterna, nessuno stile inline (CSP
+   B-005); transizioni solo senza `prefers-reduced-motion: reduce`.
+   ========================================================================== */
+
+.str-pannello { display: flex; flex-direction: column; gap: 10px; padding: 10px 12px 14px; font-size: 0.85rem; }
+.str-titolo { margin: 6px 0 0; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--testo-tenue); }
+.str-descrizione { margin: 0; color: var(--testo-tenue); font-size: 0.8rem; line-height: 1.45; }
+.str-pannello button { font: inherit; }
+
+.str-indietro { align-self: flex-start; padding: 2px 4px; margin-left: -4px; background: none; border: 0; color: var(--accento); cursor: pointer; font-size: 0.8rem; }
+.str-indietro:hover { text-decoration: underline; }
+
+.str-strumenti, .str-modelli { display: grid; gap: 6px; }
+.str-strumento, .str-modello {
+  display: grid;
+  grid-template-columns: 30px 1fr 14px;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  background: var(--sfondo);
+  color: var(--testo);
+  border: 1px solid var(--bordo);
+  border-radius: 5px;
+  text-align: left;
+  cursor: pointer;
+}
+.str-strumento:hover:not(:disabled), .str-modello:hover { border-color: var(--controllo); }
+.str-strumento:disabled { cursor: default; opacity: 0.6; }
+.str-icona { font-size: 1.1rem; color: var(--accento); text-align: center; }
+.str-freccia { color: var(--testo-tenue); font-size: 1.1rem; }
+.str-testo { display: flex; flex-direction: column; min-width: 0; }
+.str-testo b { font-weight: 600; }
+.str-testo small { color: var(--testo-tenue); font-size: 0.78rem; }
+
+.str-modello { grid-template-columns: 34px 1fr; padding: 6px 8px; }
+.str-modello[aria-checked="true"] { border-color: var(--accento); box-shadow: inset 3px 0 var(--accento); background: var(--profondo); }
+.str-mini { width: 34px; height: 46px; background: var(--carta); border: 1px solid var(--rilievo); border-radius: 2px; position: relative; }
+.str-mini::before { content: ""; position: absolute; inset: 7px 5px auto; height: 3px; background: var(--inchiostro); opacity: 0.55; border-radius: 1px;
+  box-shadow: 0 6px 0 var(--inchiostro), 0 12px 0 var(--inchiostro), 0 18px 0 var(--inchiostro); }
+
+.str-campo { display: flex; flex-direction: column; gap: 3px; }
+.str-etichetta { font-size: 0.78rem; color: var(--testo-tenue); text-transform: capitalize; }
+.str-input, .str-ricerca, .str-tipo {
+  width: 100%;
+  padding: 5px 8px;
+  background: var(--sfondo);
+  color: var(--testo);
+  border: 1px solid var(--rilievo);
+  border-radius: 4px;
+  font: inherit;
+}
+.str-input:focus-visible, .str-ricerca:focus-visible, .str-tipo:focus-visible, .str-modello:focus-visible,
+.str-strumento:focus-visible, .str-indietro:focus-visible, .str-primario:focus-visible, .str-secondario:focus-visible,
+.str-link:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 2px; }
+textarea.str-input { resize: vertical; min-height: 4.5em; }
+
+.str-primario, .str-secondario { padding: 7px 10px; border-radius: 5px; font-weight: 600; cursor: pointer; }
+.str-primario { background: var(--accento); color: var(--su-accento); border: 0; }
+.str-primario:hover:not(:disabled) { background: var(--accento-hover); }
+.str-secondario { background: var(--sfondo); color: var(--testo); border: 1px solid var(--rilievo); }
+.str-primario:disabled { opacity: 0.55; cursor: default; }
+.str-link { align-self: flex-start; padding: 2px 0; background: none; border: 0; color: var(--accento); text-decoration: underline; cursor: pointer; font-size: 0.8rem; text-align: left; }
+.str-pericolo { color: var(--errore); }
+
+.str-casella { display: flex; gap: 8px; align-items: center; font-size: 0.8rem; }
+.str-casella input { accent-color: var(--accento); margin: 0; }
+
+.str-campi { display: grid; gap: 6px; }
+.str-riga-campo { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 6px; border: 1px solid var(--bordo); border-radius: 5px; background: var(--sfondo); }
+.str-chip { padding: 1px 8px; border-radius: 9px; background: var(--giallo); color: var(--su-giallo); font-size: 0.78rem; font-weight: 600; overflow-wrap: anywhere; }
+.str-tipo { width: 88px; padding: 2px 4px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .str-strumento, .str-modello { transition: border-color 0.12s, background-color 0.12s; }
+}
+.str-avviso { color: var(--avviso); }
+
+/* ---- Vista «Pagina» ---- */
+.str-due { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.str-seg { display: flex; border: 1px solid var(--rilievo); border-radius: 5px; overflow: hidden; }
+.str-seg-voce { flex: 1; padding: 4px 6px; background: var(--sfondo); color: var(--testo); border: 0; border-right: 1px solid var(--bordo); cursor: pointer; font-size: 0.8rem; }
+.str-seg-voce:last-child { border-right: 0; }
+.str-seg-voce[aria-checked="true"] { background: var(--profondo); box-shadow: inset 0 -2px var(--accento); font-weight: 600; }
+.str-seg-voce:focus-visible { outline: 2px solid var(--fuoco); outline-offset: -2px; }
+.str-foglio { position: relative; width: 110px; margin: 2px auto; background: var(--carta); border: 1px solid var(--rilievo); box-shadow: 0 2px 8px var(--ombra); aspect-ratio: 0.707; max-width: 100%; }
+.str-foglio-area { position: absolute; border: 1px dashed var(--accento); }
+.str-foglio-testata, .str-foglio-piede { position: absolute; left: 6px; right: 6px; font-size: 0.65rem; line-height: 1; color: #555; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.str-foglio-testata { top: 3px; }
+.str-foglio-piede { bottom: 3px; text-align: center; }
+.str-input[aria-invalid="true"] { border-color: var(--errore); }
+
+/* ---- Vista «Equazioni» ---- */
+.str-formula { font-family: var(--mono); font-size: 0.82rem; resize: vertical; }
+.str-dettagli { border: 1px solid var(--bordo); border-radius: 5px; padding: 6px 8px; display: flex; flex-direction: column; gap: 8px; }
+.str-dettagli summary { cursor: pointer; color: var(--testo); font-size: 0.82rem; }
+.str-dettagli summary:focus-visible { outline: 2px solid var(--fuoco); outline-offset: 2px; }
+
+/* ---- Scheda «Gantt» ---- */
+.str-gt-riga { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--bordo); border-radius: 5px; background: var(--sfondo); }
+.str-gt-testata { display: flex; justify-content: space-between; align-items: center; gap: 8px; }

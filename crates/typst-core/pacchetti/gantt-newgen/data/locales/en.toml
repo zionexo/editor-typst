@@ -1,0 +1,110 @@
+# Localizzazione inglese (default, compatibile con gantty 0.1.0).
+# Dati versionati: ogni modifica richiede revisione manuale (gate).
+id = "en"
+months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+months-short = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+# Da lunedì a domenica
+weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+weekdays-short = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+weekdays-letter = ["M", "T", "W", "T", "F", "S", "S"]
+today = "Today"
+week-prefix = "W"
+quarter-prefix = "Q"
+first-weekday = 1
+# Fase 6b Parte B (gate dati): "{day} {month-short} {year}" -> "14 Jan
+# 2025" (prima "{month-short} {day}" -> "Feb 14", senza anno).
+milestone-date-format = "{day} {month-short} {year}"
+
+# Messaggi d'errore (RF6/RF7, D-019): una voce per CODICE ATTIVO del
+# catalogo di src/errors.typ (anche per codici che nessun modulo emette
+# ancora in questa fase: RF6 li vuole comunque presenti). I segnaposto
+# `{nome}` qui dentro devono combinare ESATTAMENTE con quelli dichiarati
+# nel catalogo (verificato da tests/unit/locales.typ); `{path}` non e' un
+# segnaposto di queste voci: il percorso lo aggiunge src/errors.typ.
+# Dati versionati: revisione manuale a ogni modifica (gate).
+[errors]
+received = "received"
+allowed = "allowed"
+suggest = "did you mean '{value}'?"
+
+"E-API-01" = "expected a dictionary"
+"E-API-02" = "gantty's cetz drawers are not supported — use drawers: (see README)"
+"E-VAL-01" = "missing required key '{key}'"
+"E-VAL-02" = "unknown key"
+"E-VAL-03" = "expected {expected}"
+"E-VAL-04" = "invalid date: expected the YYYY-MM-DD format or a datetime"
+"E-VAL-05" = "'{field}' ({value}) precedes '{other-field}' ({other-value})"
+"E-VAL-06" = "invalid color: use a Typst color name or a quoted \"#rrggbb\" (an unquoted '#' in YAML starts a comment)"
+"E-VAL-07" = "numbers are percentages 0-100"
+"E-VAL-08" = "value not allowed"
+"E-VAL-09" = "the end ({end}) does not follow the start ({start}) with date-mode \"{mode}\" (as written: {end-written})"
+"E-VAL-09.auto" = "(automatic)"
+"E-VAL-10" = "nothing to draw: no tasks or milestones"
+"E-VAL-11" = "'{key-a}' ({schema-a}) and '{key-b}' ({schema-b}) together — use one"
+"E-VAL-11.viewport-explicit" = "explicit viewport"
+"E-VAL-11.viewport-alias" = "gantty 0.5.x top-level alias"
+# Fase 3 (compat.typ): etichette di faccia riusate dal modello di
+# E-VAL-11 per "taskgroups"+"tasks", "subtasks" su un gruppo 0.1 e
+# "tasks" dentro un nodo 0.5 (D-061).
+"E-VAL-11.schema-01" = "gantty 0.1 schema"
+"E-VAL-11.schema-05" = "gantty 0.5 schema"
+"E-VAL-01.no-dates" = "need 'start' and 'end', or 'intervals', or 'subtasks'"
+"E-VAL-12" = "'{other-field}' cannot be combined with {other-detail}"
+# S9 (seconda revisione Fase 3): modello dedicato per la sovrapposizione
+# fra intervalli; il trattino fra le due date vive QUI, non nel core.
+"E-VAL-12.overlap" = "overlaps '{other-field}' ({other-start} – {other-end})"
+"E-VAL-13" = "nesting of {depth} levels exceeds the maximum of {max}"
+"E-HDR-01" = "unknown unit"
+"E-HDR-02" = "invalid order ({order}) — expected from largest to finest: {expected}"
+"E-HDR-04" = "format not allowed for '{unit}'"
+"E-HDR-05" = "invalid unit definition: {detail}"
+# Fase 4 (units.typ, D-061): voci composite usate come {detail} sopra.
+"E-HDR-05.missing-key" = "required key missing or of the wrong type"
+"E-HDR-05.reserved-name" = "name reserved for an included unit"
+"E-HDR-05.duplicate-rank" = "rank already used by '{other}'"
+"E-HDR-05.sprint-param" = "invalid 'sprint-unit' parameter"
+"E-HDR-05.unknown-key" = "unknown key '{key}'"
+"E-HDR-05.kebab-case" = "the name must be kebab-case (lowercase letters, digits, single hyphens)"
+"E-HDR-06" = "unit '{unit}' does not advance ({call})"
+# Fase 4: varianti del modello di E-HDR-06 (D-061).
+"E-HDR-06.floor-invalid" = "unit '{unit}' has an invalid 'floor': {call}"
+"E-HDR-06.too-many" = "unit '{unit}' produced more than {max} segments (runaway 'floor'/'next'?)"
+"E-DEP-01" = "id '{id}' already used in {other-path}"
+"E-DEP-02" = "unknown id"
+# S-suggerimenti (seconda revisione Fase 3): coprire anche il caso
+# "dipende da se' stesso" per nome, non solo "antenato o discendente".
+# Terza revisione (rilievo 9): "nodo" invece di "task" — il bersaglio
+# puo' essere un GRUPPO (faccia 0.1), non solo un task/subtask.
+"E-DEP-03" = "'{id}' is this node, or one of its ancestors/descendants"
+"E-DEP-04" = "dependency cycle {cycle}"
+"E-DEP-05" = "node '{name}' has no dates"
+"E-DRW-01" = "unknown drawer"
+"E-DRW-02" = "expected content, string or none"
+"E-LAY-01" = "sidebar-width ({width}) leaves no room for the bars area (available: {available}): reduce it or widen the container"
+# Final review of Phase 6a (coordinator's finding): composite variant of
+# E-LAY-01 for when sidebar-width leaves room for the bars area but not
+# for the row NAME (after the horizontal inset and the per-level
+# indent) — the row-wrap guard (R5, D-108) would otherwise produce an
+# unreadable name split into many single-character lines.
+"E-LAY-01.sidebar-name" = "sidebar-width ({width}) leaves no room for the row name after inset/indent (available: {available}): reduce the indent, widen sidebar-width, or shorten the names"
+# D5 (rereview of Phase 6a, D-106): composite label used as the value of
+# E-VAL-03's {expected} when an alignment has no horizontal component
+# (e.g. a purely vertical "top").
+"E-VAL-03.horizontal" = "an alignment with a horizontal component"
+# Rereview of Phase 8.4 (D-018, decision of the user on 2026-10-19):
+# composite label used as the value of E-VAL-03's {expected} when
+# `headers:` is an explicit empty array (the absent key falls back to
+# the default instead).
+"E-VAL-03.non-empty" = "a non-empty array"
+# S-8: E-API-01/E-API-02/E-LOC-01/E-LOC-02 (e le voci composite
+# "E-LOC-02.*") sono "sempre in en" per RF7 (gli errori sul locale
+# stesso, o che precedono la sua risoluzione, non si traducono): le
+# voci "it" equivalenti più sotto esistono solo per la totalità del
+# catalogo (unit/locales.typ), non vengono mai mostrate all'utente.
+"E-LOC-01" = "unknown locale"
+"E-LOC-02" = "expected {expected}"
+"E-LOC-02.scalar" = "a value"
+"E-LOC-02.count" = "{n} items"
+"E-LOC-02.missing" = "missing"
+"E-LOC-02.first-weekday" = "integer 1-7"
+"E-LOC-02.string" = "a string"

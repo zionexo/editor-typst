@@ -1,0 +1,166 @@
+/* ==========================================================================
+   Menu «Aspetto»: popover con tre schede di stile (miniatura in CSS puro) e il
+   selettore del tema. Usa solo le variabili correnti, quindi si adatta allo
+   stile attivo; le miniature invece portano la tavolozza FISSA del proprio
+   stile (`--m-*`, in forma light-dark) per mostrarne l'anteprima.
+   Nessuna risorsa esterna, nessuno stile inline (CSP B-005). Le transizioni
+   sono ammesse solo senza `prefers-reduced-motion: reduce`.
+   ========================================================================== */
+
+.menu-aspetto {
+  position: fixed;
+  z-index: 110;
+  top: 0;
+  left: 0;
+  width: min(540px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: 14px 16px 12px;
+  background: var(--pannello);
+  color: var(--testo);
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px var(--ombra);
+  font-size: 0.85rem;
+}
+.menu-aspetto[hidden] { display: none; }
+
+.ma-titolo {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--testo-tenue);
+}
+.ma-titolo + .ma-temi { margin-bottom: 4px; }
+.ma-schede { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+
+.ma-scheda {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--sfondo);
+  border: 2px solid var(--bordo);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.ma-scheda:hover { border-color: var(--controllo); }
+.ma-scheda[aria-checked="true"] { border-color: var(--accento); background: var(--profondo); }
+/* spunta: lo stato selezionato non dipende dal solo colore del bordo */
+.ma-scheda[aria-checked="true"]::after {
+  content: "\2713";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accento);
+  color: var(--su-accento);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.ma-scheda:focus-visible, .ma-tema:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: 2px;
+}
+.ma-nome { font-weight: 600; font-size: 0.9rem; color: var(--testo); }
+.ma-scheda[aria-checked="true"] .ma-nome { color: var(--accento); }
+.ma-desc { font-size: 0.75rem; line-height: 1.35; color: var(--testo-2); }
+
+/* ---- Tema ---- */
+.ma-temi { display: inline-flex; border: 1px solid var(--controllo); border-radius: 6px; overflow: hidden; }
+.ma-tema {
+  padding: 5px 16px;
+  background: none;
+  color: var(--testo-2);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+.ma-tema + .ma-tema { border-left: 1px solid var(--controllo); }
+.ma-tema:hover { background: var(--bordo); color: var(--testo); }
+.ma-tema[aria-checked="true"] { background: var(--accento); color: var(--su-accento); }
+.ma-tema:focus-visible { outline-offset: -3px; }
+.ma-aiuto { margin: 12px 0 0; font-size: 0.75rem; color: var(--testo-tenue); }
+
+@media (max-width: 520px) {
+  .ma-schede { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- Miniature: tavolozza fissa dello stile + mini-layout ---- */
+.miniatura {
+  --m-sfondo: light-dark(#eff1f5, #1e1e2e);
+  --m-pannello: light-dark(#e6e9ef, #181825);
+  --m-profondo: light-dark(#dce0e8, #11111b);
+  --m-bordo: light-dark(#ccd0da, #313244);
+  --m-testo: light-dark(#4c4f69, #cdd6f4);
+  --m-accento: light-dark(#1853d4, #89b4fa);
+  --m-carta: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.miniatura[data-miniatura="composizione"] {
+  --m-sfondo: light-dark(#f7f4ec, #1d1913);
+  --m-pannello: light-dark(#f1ece3, #17130e);
+  --m-profondo: light-dark(#e8e2d8, #110e09);
+  --m-bordo: light-dark(#d8d2c7, #322d26);
+  --m-testo: light-dark(#2e241d, #e3ddd3);
+  --m-accento: light-dark(#2b4ea7, #8caffe);
+  --m-carta: light-dark(#fffdf9, #e7e1d3);
+}
+.miniatura[data-miniatura="strumento"] {
+  --m-sfondo: light-dark(#f9fafc, #101317);
+  --m-pannello: light-dark(#eff2f5, #0a0e12);
+  --m-profondo: light-dark(#e4e8ec, #06080c);
+  --m-bordo: light-dark(#d4d8dd, #23272c);
+  --m-testo: light-dark(#1b2026, #e1e5ea);
+  --m-accento: light-dark(#016569, #3fe2da);
+  --m-carta: light-dark(#ffffff, #e6e8ea);
+}
+
+.mn-layout {
+  display: flex;
+  height: 58px;
+  overflow: hidden;
+  background: var(--m-sfondo);
+  border: 1px solid var(--m-bordo);
+  border-radius: 4px;
+}
+.mn-layout > i { display: block; height: 100%; }
+.mn-rail { flex: 0 0 8%; background: var(--m-profondo); border-right: 1px solid var(--m-bordo); }
+.mn-pannello { flex: 0 0 22%; background: var(--m-pannello); border-right: 1px solid var(--m-bordo); }
+.mn-editor { flex: 1 1 0; display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; }
+.mn-riga { display: block; height: 3px; border-radius: 1px; background: var(--m-testo); opacity: 0.55; }
+.mn-riga:nth-child(1) { width: 55%; background: var(--m-accento); opacity: 1; }
+.mn-riga:nth-child(2) { width: 90%; }
+.mn-riga:nth-child(3) { width: 75%; }
+.mn-riga:nth-child(4) { width: 40%; }
+.mn-anteprima { flex: 0 0 30%; display: grid; place-items: center; background: var(--m-profondo); border-left: 1px solid var(--m-bordo); }
+.mn-pagina { display: block; width: 58%; height: 78%; background: var(--m-carta); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+
+/* la miniatura di «Strumento» è più densa; quella di «Composizione» ha la colonna di lettura più stretta */
+.miniatura[data-miniatura="strumento"] .mn-rail { flex-basis: 6%; }
+.miniatura[data-miniatura="strumento"] .mn-riga { height: 2px; }
+.miniatura[data-miniatura="composizione"] .mn-editor { padding-inline: 12px; }
+.miniatura[data-miniatura="composizione"] .mn-riga { height: 2px; }
+
+.mn-palette { display: flex; height: 12px; border: 1px solid var(--m-bordo); border-radius: 3px; overflow: hidden; }
+.mn-palette i { display: block; flex: 1 1 0; }
+.mn-c1 { background: var(--m-sfondo); }
+.mn-c2 { background: var(--m-pannello); }
+.mn-c3 { background: var(--m-testo); }
+.mn-c4 { background: var(--m-accento); }
+.mn-c5 { background: var(--m-carta); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ma-scheda, .ma-tema { transition: background-color 0.12s, border-color 0.12s; }
+}

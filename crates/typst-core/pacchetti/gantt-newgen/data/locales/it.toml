@@ -1,0 +1,121 @@
+# Localizzazione italiana.
+# Dati versionati: ogni modifica richiede revisione manuale (gate).
+id = "it"
+months = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]
+months-short = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"]
+# Da lunedì a domenica
+weekdays = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"]
+weekdays-short = ["lun", "mar", "mer", "gio", "ven", "sab", "dom"]
+weekdays-letter = ["L", "M", "M", "G", "V", "S", "D"]
+today = "Oggi"
+week-prefix = "S"
+quarter-prefix = "T"
+first-weekday = 1
+# Fase 6b Parte B (gate dati): "{day} {month-short} {year}" -> "14 gen
+# 2025" (prima "{day} {month-short}" -> "14 feb", senza anno).
+milestone-date-format = "{day} {month-short} {year}"
+
+# Messaggi d'errore (RF6/RF7, D-019): una voce per CODICE ATTIVO del
+# catalogo di src/errors.typ (anche per codici che nessun modulo emette
+# ancora in questa fase: RF6 li vuole comunque presenti). I segnaposto
+# `{nome}` qui dentro devono combinare ESATTAMENTE con quelli dichiarati
+# nel catalogo (verificato da tests/unit/locales.typ); `{path}` non e' un
+# segnaposto di queste voci: il percorso lo aggiunge src/errors.typ.
+# Dati versionati: revisione manuale a ogni modifica (gate). Testi
+# approvati dall'utente il 2026-10-20 (D-144).
+[errors]
+received = "ricevuto"
+allowed = "ammessi"
+suggest = "forse '{value}'?"
+
+"E-API-01" = "atteso un dizionario"
+"E-API-02" = "i drawer cetz di gantty non sono supportati — usa drawers: (vedi README)"
+"E-VAL-01" = "chiave obbligatoria '{key}' mancante"
+"E-VAL-02" = "chiave sconosciuta"
+"E-VAL-03" = "atteso {expected}"
+"E-VAL-04" = "data non valida: atteso il formato YYYY-MM-DD o un datetime"
+"E-VAL-05" = "'{field}' ({value}) precede '{other-field}' ({other-value})"
+"E-VAL-06" = "colore non valido: usa un nome di colore Typst o un \"#rrggbb\" tra virgolette (in YAML un '#' non quotato avvia un commento)"
+"E-VAL-07" = "i numeri sono percentuali 0-100"
+"E-VAL-08" = "valore non ammesso"
+"E-VAL-09" = "la fine ({end}) non segue l'inizio ({start}) con date-mode \"{mode}\" (scritta: {end-written})"
+"E-VAL-09.auto" = "(automatica)"
+"E-VAL-10" = "nessun task né milestone da disegnare"
+"E-VAL-11" = "'{key-a}' ({schema-a}) e '{key-b}' ({schema-b}) insieme — usane uno"
+"E-VAL-11.viewport-explicit" = "viewport esplicito"
+"E-VAL-11.viewport-alias" = "alias di primo livello di gantty 0.5.x"
+# Fase 3 (compat.typ): etichette di faccia riusate dal modello di
+# E-VAL-11 per "taskgroups"+"tasks", "subtasks" su un gruppo 0.1 e
+# "tasks" dentro un nodo 0.5 (D-061).
+"E-VAL-11.schema-01" = "schema di gantty 0.1"
+"E-VAL-11.schema-05" = "schema di gantty 0.5"
+"E-VAL-01.no-dates" = "servono 'start' e 'end', oppure 'intervals', oppure 'subtasks'"
+"E-VAL-12" = "'{other-field}' non si combina con {other-detail}"
+# S9 (seconda revisione Fase 3): modello dedicato per la sovrapposizione
+# fra intervalli; il trattino fra le due date vive QUI, non nel core.
+"E-VAL-12.overlap" = "si sovrappone a '{other-field}' ({other-start} – {other-end})"
+"E-VAL-13" = "annidamento di {depth} livelli, massimo {max}"
+"E-HDR-01" = "unità sconosciuta"
+"E-HDR-02" = "ordine non valido ({order}) — atteso dal più grande al più fine: {expected}"
+"E-HDR-04" = "formato non ammesso per '{unit}'"
+"E-HDR-05" = "definizione d'unità non valida: {detail}"
+# Fase 4 (units.typ, D-061): voci composite usate come {detail} sopra.
+"E-HDR-05.missing-key" = "chiave obbligatoria mancante o di tipo errato"
+"E-HDR-05.reserved-name" = "nome riservato a un'unità inclusa"
+"E-HDR-05.duplicate-rank" = "rank già usato da '{other}'"
+"E-HDR-05.sprint-param" = "parametro di 'sprint-unit' non valido"
+"E-HDR-05.unknown-key" = "chiave sconosciuta '{key}'"
+"E-HDR-05.kebab-case" = "il nome deve essere kebab-case (lettere minuscole, cifre, trattini singoli)"
+"E-HDR-06" = "l'unità '{unit}' non avanza ({call})"
+# Fase 4: varianti del modello di E-HDR-06 (D-061).
+"E-HDR-06.floor-invalid" = "l'unità '{unit}' ha un 'floor' non valido: {call}"
+"E-HDR-06.too-many" = "l'unità '{unit}' ha prodotto più di {max} segmenti (ciclo di 'floor'/'next'?)"
+"E-DEP-01" = "'{id}' già usato in {other-path}"
+"E-DEP-02" = "id sconosciuto"
+# S-suggerimenti (seconda revisione Fase 3): coprire anche il caso
+# "dipende da se' stesso" per nome, non solo "antenato o discendente".
+# Terza revisione (rilievo 9): "nodo" invece di "task" — il bersaglio
+# puo' essere un GRUPPO (faccia 0.1), non solo un task/subtask.
+"E-DEP-03" = "'{id}' è questo nodo, o uno dei suoi antenati/discendenti"
+"E-DEP-04" = "ciclo di dipendenze {cycle}"
+"E-DEP-05" = "il nodo '{name}' non ha date"
+"E-DRW-01" = "drawer sconosciuto"
+"E-DRW-02" = "atteso content, stringa o none"
+"E-LAY-01" = "sidebar-width ({width}) non lascia spazio per l'area barre (disponibile: {available}): riducilo o allarga il contenitore"
+# Review finale di Fase 6a (rilievo del coordinatore): variante composita
+# di E-LAY-01 per quando sidebar-width lascia spazio all'area barre ma
+# NON al NOME della riga (dopo l'inset orizzontale e il rientro per
+# livello) — senza questa guardia esplicita, la crescita a capo (R5,
+# D-108) spezzerebbe il nome in moltissime righe di un solo carattere,
+# illeggibili. Bozza, gate di revisione manuale (come il resto di
+# questo locale).
+"E-LAY-01.sidebar-name" = "sidebar-width ({width}) non lascia spazio per il nome della riga dopo inset/rientro (disponibile: {available}): riduci il rientro, allarga sidebar-width o accorcia i nomi"
+# D5 (rereview di Fase 6a, D-106): etichetta composita usata come valore
+# di {expected} di E-VAL-03 quando un allineamento non ha componente
+# orizzontale (es. un "top" puramente verticale). Bozza, gate di
+# revisione manuale (come il resto di questo locale).
+"E-VAL-03.horizontal" = "un allineamento con componente orizzontale"
+# Rereview di Fase 8.4 (D-018, decisione dell'utente del 2026-10-19):
+# etichetta composita usata come valore di {expected} di E-VAL-03
+# quando `headers:` è un array VUOTO esplicito (la chiave assente cade
+# invece sul default). Testo APPROVATO dall'utente il 2026-10-19 (gate
+# di revisione manuale di questo locale già passato per questa voce).
+"E-VAL-03.non-empty" = "un array non vuoto"
+# S-8: E-API-01/E-API-02/E-LOC-01/E-LOC-02 (e le voci composite
+# "E-LOC-02.*") sono "sempre in en" per RF7 (errori sul locale stesso, o
+# che precedono la sua risoluzione): queste voci italiane esistono per
+# la totalità del catalogo (unit/locales.typ). Review di provenienza
+# (code-reviewer, 2026-10-20): "non sono mai mostrate all'utente" era
+# FALSO per "E-LOC-02.missing"/".first-weekday"/".string" — restano
+# token TECNICI in inglese (nessuna revisione linguistica: per questo
+# l'italiano qui sotto e' comunque "missing"/"integer 1-7"/"a string",
+# non tradotto), ma `src/units.typ` legge "E-LOC-02.missing" dal
+# locale RISOLTO (non da `locales.en` fisso): con `locale: "it"`,
+# E-HDR-05 mostra davvero "(ricevuto: missing)" all'utente.
+"E-LOC-01" = "locale sconosciuto"
+"E-LOC-02" = "atteso: {expected}"
+"E-LOC-02.scalar" = "un valore"
+"E-LOC-02.count" = "{n} elementi"
+"E-LOC-02.missing" = "missing"
+"E-LOC-02.first-weekday" = "integer 1-7"
+"E-LOC-02.string" = "a string"

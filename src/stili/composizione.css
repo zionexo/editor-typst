@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Stile «Composizione» (carta / studio di composizione tipografico).
+   Portato dalla proposta A (output/anteprime-stile/proposta-A.html).
+
+   Tutto è scopato su `:root[data-stile="composizione"]` (l'attributo che
+   src/aspetto.ts scrive su <html>): senza quell'attributo questo file non
+   cambia nulla, quindi il Classico resta identico. I token riusano i nomi delle
+   variabili di index.html, in forma `light-dark(chiaro, scuro)`; il ramo lo
+   decide `color-scheme` (data-tema). Contrasti WCAG verificati nella proposta:
+   testo 11.8:1 chiaro / 13:1 scuro, testo-tenue e muto >= 5.3:1, accento >= 5.9:1,
+   tutti i colori di sintassi >= 5.4:1, inchiostro su carta >= 13:1, carta-sec
+   e carta-link >= 5.7:1 su carta, controllo (UI) >= 3:1, fuoco >= 4.8:1.
+
+   Solo CSS, font di sistema, nessuna risorsa esterna (CSP di produzione B-005).
+   Rinviato (vedi DECISIONI.md): margine annotazioni per le diagnostiche
+   (richiede gutter/widget CodeMirror), barra di stato a pallino.
+   ========================================================================== */
+
+:root[data-stile="composizione"] {
+  --sfondo: light-dark(#f7f4ec, #1d1913);
+  --pannello: light-dark(#f1ece3, #17130e);
+  --profondo: light-dark(#e8e2d8, #110e09);
+  --bordo: light-dark(#d8d2c7, #322d26);
+  --rilievo: light-dark(#cec6b9, #423c34);
+  --controllo: light-dark(#888074, #81796e);
+  --errore-sfondo: light-dark(#fee0dd, #421c19);
+  --testo: light-dark(#2e241d, #e3ddd3);
+  --testo-2: light-dark(#453b33, #c9c3ba);
+  --testo-tenue: light-dark(#584e45, #b0aaa0);
+  --muto: light-dark(#62594f, #9d978e);
+  --muto-2: var(--muto);
+  --accento: light-dark(#2b4ea7, #8caffe);
+  --accento-hover: light-dark(#193990, #a8c4fe);
+  --su-accento: light-dark(#fcfaf4, #0e1218);
+  --errore: light-dark(#b71a18, #fb8274);
+  --avviso: light-dark(#8e5300, #ebb25f);
+  --verde: light-dark(#196632, #7ccd8e);
+  --verde-hover: color-mix(in oklab, var(--verde) 82%, var(--testo));
+  --su-verde: light-dark(#fcfaf4, #0b140d);
+  --giallo: light-dark(#f7dd7d, #d9bb66);
+  --su-giallo: light-dark(#2f2817, #1a160b);
+  --carta: light-dark(#fffdf9, #e7e1d3);
+  --carta-sec: #5b5449;
+  --carta-link: #214092;
+  --inchiostro: #151b24;
+  --fuoco: light-dark(#325ac2, #8caffe);
+  --sint-titolo: light-dark(#214092, #9ebdff);
+  --sint-funzione: light-dark(#7b358b, #d99ee7);
+  --sint-stringa: light-dark(#196632, #83d494);
+  --sint-numero: light-dark(#974c00, #f3ad66);
+  --sint-commento: light-dark(#575145, #b0a89c);
+  --sint-math: light-dark(#016569, #65d2d2);
+  --sint-rif: light-dark(#9a2929, #fb9890);
+  --ombra: light-dark(rgba(60, 45, 25, 0.22), rgba(0, 0, 0, 0.55));
+  --ombra-pannello: light-dark(rgba(60, 45, 25, 0.2), rgba(0, 0, 0, 0.45));
+  --velo: light-dark(rgba(60, 45, 25, 0.38), rgba(0, 0, 0, 0.55));
+  --serif: Charter, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+/* Fuoco visibile ovunque (dentro i contenitori con overflow: offset negativo), tranne l’area di
+   testo di CodeMirror: ha già l’anello su .cm-editor.cm-focused e `.ͼ1 .cm-content {outline:none}`
+   (0,2,0) perderebbe contro questa regola (0,4,0) lasciando un bordo inset permanente. */
+:root[data-stile="composizione"] :focus-visible:not(.cm-content) {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+
+/* ---- Barra superiore: quieta, pulsanti «fantasma», solo Compila in evidenza ---- */
+/* gap 6px (era 8): il pallino di salvataggio (+18 px) altrimenti manda a capo la barra a 1280 px. */
+:root[data-stile="composizione"] header { padding: 6px 12px 6px 10px; gap: 6px; }
+:root[data-stile="composizione"] header h1 {
+  font: italic 600 1.15rem/1 var(--serif);
+  letter-spacing: 0.01em;
+}
+:root[data-stile="composizione"] header button {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--testo-2);
+  font-weight: 500;
+  font-size: 0.82rem;
+  padding: 5px 11px;
+}
+:root[data-stile="composizione"] header button:hover { background: var(--bordo); color: var(--testo); }
+:root[data-stile="composizione"] header button#btn-aspetto[aria-expanded="true"],
+:root[data-stile="composizione"] header button#btn-opzioni[aria-expanded="true"] {
+  background: var(--bordo);
+  color: var(--testo);
+  border-color: var(--controllo);
+}
+:root[data-stile="composizione"] header button#btn-compila {
+  background: var(--accento);
+  color: var(--su-accento);
+  font-weight: 600;
+}
+:root[data-stile="composizione"] header button#btn-compila:hover { background: var(--accento-hover); }
+:root[data-stile="composizione"] #nome-file { font-family: var(--serif); font-size: 0.9rem; color: var(--testo-2); }
+
+/* ---- Barra di formattazione ---- */
+:root[data-stile="composizione"] #barra-formattazione { padding: 6px 12px; gap: 2px; }
+:root[data-stile="composizione"] #barra-formattazione button {
+  background: none;
+  color: var(--testo-tenue);
+  border-radius: 3px;
+  font-family: var(--serif);
+  font-size: 0.82rem;
+}
+:root[data-stile="composizione"] #barra-formattazione button:hover { background: var(--bordo); color: var(--testo); }
+
+/* ---- Barra laterale: titoli spaziati, indice come sommario di libro ---- */
+:root[data-stile="composizione"] .barra-scheda { border-radius: 3px; }
+:root[data-stile="composizione"] .barra-titolo { letter-spacing: 0.14em; padding: 10px 14px 8px; }
+:root[data-stile="composizione"] .indice-riga { font-family: var(--serif); font-size: 0.92rem; padding-block: 4px; }
+:root[data-stile="composizione"] .indice-riga.corrente { font-weight: 700; }
+/* puntini guida fra voce e numero di pagina (pseudo-elemento ordinato in mezzo) */
+:root[data-stile="composizione"] .indice-riga::after {
+  content: "";
+  order: 1;
+  flex: 1 1 12px;
+  min-width: 12px;
+  border-bottom: 1px dotted var(--controllo);
+  transform: translateY(-3px);
+}
+:root[data-stile="composizione"] .indice-pagina {
+  order: 2;
+  margin-left: 0;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+}
+:root[data-stile="composizione"] .indice-testo { flex: 0 1 auto; }
+:root[data-stile="composizione"] .pkg-card { border-radius: 6px; }
+:root[data-stile="composizione"] .pkg-nome { font-family: var(--serif); }
+:root[data-stile="composizione"] #ricerca-pacchetti { border-color: var(--controllo); border-radius: 3px; }
+
+/* ---- Editor: colonna di lettura centrata, interlinea larga ---- */
+:root[data-stile="composizione"] .cm-scroller { justify-content: center; line-height: 1.75; }
+:root[data-stile="composizione"] .cm-content { flex: 0 1 72ch; min-width: 0; padding: 14px 10px 40px; }
+:root[data-stile="composizione"] .cm-activeLine { background: none; }
+:root[data-stile="composizione"] .cm-tooltip-typst { font-family: var(--serif); }
+:root[data-stile="composizione"] #errori { font-family: var(--serif); font-size: 0.88rem; }
+
+/* ---- Anteprima: la pagina riflette la carta ---- */
+:root[data-stile="composizione"] #pannello-anteprima { padding: 18px 16px 28px; gap: 12px; }
+:root[data-stile="composizione"] .pagina-svg {
+  box-shadow: 0 1px 2px var(--ombra), 0 10px 30px -8px var(--ombra);
+}
+:root[data-stile="composizione"] #placeholder-anteprima { font-family: var(--serif); font-style: italic; }
+
+/* ---- Palette e modali ---- */
+:root[data-stile="composizione"] .modal,
+:root[data-stile="composizione"] .palette { border-radius: 6px; }
+:root[data-stile="composizione"] .modal strong { font: italic 600 1.1rem var(--serif); }
+:root[data-stile="composizione"] .modal input,
+:root[data-stile="composizione"] .modal select,
+:root[data-stile="composizione"] #palette-input { border-radius: 3px; }
+:root[data-stile="composizione"] .modal-azioni button { border-radius: 3px; }
+:root[data-stile="composizione"] #palette-lista li { border-radius: 3px; }
+:root[data-stile="composizione"] #palette-lista li[aria-selected="true"] kbd { color: var(--testo); }
+
+/* «Opzioni» è solo un'icona: padding ridotto per non far andare a capo i pulsanti a 1280 px. */
+:root[data-stile="composizione"] header button#btn-opzioni { padding: 5px 6px; }

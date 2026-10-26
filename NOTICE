@@ -1,0 +1,43 @@
+Typster
+Copyright (c) 2026 Nexodux
+Licenza: MIT (vedi il file LICENSE nella radice del repository).
+
+Questo prodotto contiene codice derivato da software di terze parti.
+I testi integrali delle licenze sono nella cartella licenses/.
+
+--------------------------------------------------------------------------
+Typst (https://github.com/typst/typst)
+  Contiene codice derivato da Typst (https://github.com/typst/typst), Apache-2.0
+  Copyright Typst contributors
+  Origine: typst-cli, typst-kit, typst-pdf (tag v0.15.0,
+  commit 3ae52774b48987fc78a72ff483068cacc28e46c2).
+  Licenza: licenses/Apache-2.0.txt
+  I file di Typster che contengono codice derivato portano la nota di
+  derivazione nel sorgente ("Derivato da ...").
+
+Tinymist (https://github.com/Myriad-Dreamin/tinymist)
+  Contiene codice derivato da Tinymist (https://github.com/Myriad-Dreamin/tinymist), Apache-2.0
+  Copyright Myriad-Dreamin e contributori Tinymist
+  Origine: commit f3b00eb553d6b7a35b5d59cce529c8d0d774cfce.
+  Licenza: licenses/Apache-2.0.txt
+
+MarkText (https://github.com/marktext/marktext)
+  Contiene codice derivato da MarkText, MIT
+  Copyright (c) MarkText contributors
+  Origine: commit 34b5c2832380da3c0c24b50a4a0a203cfcde46bf.
+  Licenza: licenses/MIT-MarkText.txt
+
+cm-typewriter-scroll-obsidian (https://github.com/deathau/cm-typewriter-scroll-obsidian)
+  Contiene codice derivato da cm-typewriter-scroll-obsidian, MIT
+  Copyright (c) deathau
+  Origine: commit 625b42f188060d64a6ca3b5f4ace77e3adb1761a.
+  Licenza: licenses/MIT-cm-typewriter-scroll-obsidian.txt
+
+gantt-newgen (pacchetto Typst, cartella crates/typst-core/pacchetti/gantt-newgen)
+  Pacchetto Typst per diagrammi di Gantt, versione 0.1.0, LGPL-3.0-o-successiva
+  Copyright nexodux (stesso autore di Typster)
+  Incorporato in chiaro nell'eseguibile (scheda «Gantt» del pannello Strumenti), come
+  @local/gantt-newgen:0.1.0. Il sorgente completo e' nel repository; chi lo vuole modificare puo'
+  installare la propria versione in @local (ha la precedenza su quella incorporata).
+  Licenza: licenses/LGPL-3.0-gantt-newgen.txt (con licenses/GPL-3.0-gantt-newgen.txt, da cui
+  la LGPL rimanda).

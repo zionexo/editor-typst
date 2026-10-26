@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema/acl-manifests.json",
+  "identifier": "default",
+  "description": "Capability predefinite per Typster: core + dialog (apri/salva/domande).",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-destroy",
+    "dialog:allow-ask","dialog:allow-message",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
+}

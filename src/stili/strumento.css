@@ -1,0 +1,170 @@
+/* ==========================================================================
+   Stile «Strumento» (console di lavoro ad alta densità).
+   Portato dalla proposta B (output/anteprime-stile/proposta-B.html).
+
+   Scopato su `:root[data-stile="strumento"]` (attributo scritto da
+   src/aspetto.ts su <html>): senza non cambia nulla, il Classico resta
+   identico. Token in forma `light-dark(chiaro, scuro)` con i nomi di index.html.
+   Contrasti WCAG dalla proposta: testo >= 13.3:1, testo-tenue e muto >= 5.7:1,
+   accento >= 5.5:1 chiaro / 11.6:1 scuro, sintassi >= 5.7:1, inchiostro su carta
+   11.1:1, carta-sec 4.56:1, controllo (UI) >= 3.2:1, fuoco >= 4.7:1.
+
+   Densità: UI 12,5px, righe da 22px, controlli da 24px, cifre tabulari. La
+   dimensione del font dell'editor resta quella scelta dall'utente
+   (`--font-editor` è scritta da aspetto.ts e prevale su questo foglio).
+   Solo CSS, font di sistema, nessuna risorsa esterna (CSP B-005).
+   Rinviato (vedi DECISIONI.md): pannelli a scomparsa CSS-only, selettore carta
+   e zoom, barra di stato a segmenti, barra a margine per righe modificate.
+   ========================================================================== */
+
+:root[data-stile="strumento"] {
+  --sfondo: light-dark(#f9fafc, #101317);
+  --pannello: light-dark(#eff2f5, #0a0e12);
+  --profondo: light-dark(#e4e8ec, #06080c);
+  --bordo: light-dark(#d4d8dd, #23272c);
+  --rilievo: light-dark(#c6cbd1, #33383f);
+  --controllo: light-dark(#77818c, #6d7580);
+  --errore-sfondo: light-dark(#ffe4e2, #401314);
+  --testo: light-dark(#1b2026, #e1e5ea);
+  --testo-2: light-dark(#333840, #c6cbd1);
+  --testo-tenue: light-dark(#484e55, #a8afb5);
+  --muto: light-dark(#535961, #969ca3);
+  --muto-2: var(--muto);
+  --accento: light-dark(#016569, #3fe2da);
+  --accento-hover: light-dark(#014f53, #6bf4ec);
+  --su-accento: light-dark(#f9fdfd, #051115);
+  --errore: light-dark(#bb061e, #ff7e7d);
+  --avviso: light-dark(#8a5601, #f3b94c);
+  --verde: light-dark(#09672e, #75df8f);
+  --verde-hover: color-mix(in oklab, var(--verde) 82%, var(--testo));
+  --su-verde: light-dark(#fafdfa, #061308);
+  --giallo: light-dark(#fee484, #e2c162);
+  --su-giallo: light-dark(#2f2817, #1a160b);
+  --carta: light-dark(#ffffff, #e6e8ea);
+  --carta-sec: #4f565e;
+  --carta-link: #015766;
+  --inchiostro: #13161b;
+  --fuoco: light-dark(#006c97, #3fe2da);
+  --sint-titolo: light-dark(#005182, #86cdff);
+  --sint-funzione: light-dark(#6034ac, #d1a9ff);
+  --sint-stringa: light-dark(#036639, #7cdd93);
+  --sint-numero: light-dark(#9c4700, #ffb06e);
+  --sint-commento: light-dark(#4a5159, #a3aab2);
+  --sint-math: light-dark(#016569, #62dedd);
+  --sint-rif: light-dark(#ac2856, #fe9ead);
+  --ombra: light-dark(rgba(20, 30, 45, 0.2), rgba(0, 0, 0, 0.6));
+  --ombra-pannello: light-dark(rgba(20, 30, 45, 0.18), rgba(0, 0, 0, 0.5));
+  --velo: light-dark(rgba(20, 30, 45, 0.3), rgba(0, 0, 0, 0.55));
+  --serif: "Libertinus Serif", Georgia, "Times New Roman", serif;
+}
+
+:root[data-stile="strumento"] body { font-size: 12.5px; line-height: 1.4; font-variant-numeric: tabular-nums; }
+:root[data-stile="strumento"] :focus-visible:not(.cm-content) {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+
+/* ---- Barra comandi compatta ---- */
+:root[data-stile="strumento"] header { padding: 3px 6px; gap: 4px; }
+:root[data-stile="strumento"] header h1 {
+  margin: 0 6px 0 2px;
+  font: 700 0.8rem var(--mono);
+  letter-spacing: 0.04em;
+}
+:root[data-stile="strumento"] header button {
+  height: 24px;
+  padding: 0 8px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: var(--testo-2);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+:root[data-stile="strumento"] header button:hover { background: var(--bordo); color: var(--testo); }
+:root[data-stile="strumento"] header button#btn-aspetto[aria-expanded="true"],
+:root[data-stile="strumento"] header button#btn-opzioni[aria-expanded="true"] {
+  background: var(--bordo);
+  border-color: var(--controllo);
+  color: var(--testo);
+}
+:root[data-stile="strumento"] header button#btn-compila {
+  background: var(--accento);
+  color: var(--su-accento);
+  font-weight: 700;
+  padding: 0 10px;
+}
+:root[data-stile="strumento"] header button#btn-compila:hover { background: var(--accento-hover); }
+:root[data-stile="strumento"] #nome-file { font-size: 0.78rem; color: var(--testo-tenue); }
+
+/* ---- Barra di formattazione ---- */
+:root[data-stile="strumento"] #barra-formattazione { padding: 2px 6px; gap: 1px; }
+:root[data-stile="strumento"] #barra-formattazione button {
+  height: 22px;
+  min-width: 24px;
+  padding: 0 5px;
+  background: none;
+  color: var(--testo-tenue);
+  border-radius: 2px;
+  font: 700 0.72rem var(--mono);
+}
+:root[data-stile="strumento"] #barra-formattazione button:hover { background: var(--bordo); color: var(--testo); }
+:root[data-stile="strumento"] #barra-formattazione .separatore { margin: 2px 3px; }
+
+/* ---- Barra laterale: rail stretta, righe da 22px, titoli a banda ---- */
+:root[data-stile="strumento"] #barra-attivita { flex-basis: 36px; width: 36px; padding: 4px 0; }
+:root[data-stile="strumento"] .barra-scheda { width: 28px; height: 28px; border-radius: 0 2px 2px 0; }
+:root[data-stile="strumento"] .barra-titolo {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--profondo);
+  border-bottom: 1px solid var(--bordo);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--testo-2);
+}
+:root[data-stile="strumento"] .indice-riga,
+:root[data-stile="strumento"] .file-riga {
+  align-items: center;
+  min-height: 22px;
+  padding-block: 0;
+  padding-right: 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+:root[data-stile="strumento"] .indice-pagina { font: 0.7rem var(--mono); }
+:root[data-stile="strumento"] .file-radice { font-size: 0.78rem; }
+:root[data-stile="strumento"] .pkg-card { border-radius: 2px; padding: 6px 8px; margin-bottom: 6px; }
+:root[data-stile="strumento"] .pkg-desc { margin: 4px 0; font-size: 0.78rem; }
+:root[data-stile="strumento"] .pkg-installa,
+:root[data-stile="strumento"] .pkg-template { padding: 3px 8px; border-radius: 2px; font-size: 0.74rem; }
+:root[data-stile="strumento"] #ricerca-pacchetti { padding: 3px 8px; border-radius: 2px; border-color: var(--controllo); font-size: 0.78rem; }
+:root[data-stile="strumento"] .barra-pulsante { border-radius: 2px; padding: 4px 10px; }
+:root[data-stile="strumento"] .barra-azione { width: 24px; height: 24px; border-radius: 2px; }
+
+/* ---- Editor ---- */
+:root[data-stile="strumento"] .cm-scroller { line-height: 1.55; }
+:root[data-stile="strumento"] .cm-gutters { min-width: 36px; }
+:root[data-stile="strumento"] .cm-activeLine { background: var(--pannello); }
+:root[data-stile="strumento"] #errori { padding: 4px 10px; font-size: 0.78rem; }
+:root[data-stile="strumento"] #avvisi-conversione { padding: 3px 10px; font-size: 0.78rem; }
+
+/* ---- Anteprima ---- */
+:root[data-stile="strumento"] #pannello-anteprima { padding: 14px; gap: 12px; }
+:root[data-stile="strumento"] .pagina-svg { box-shadow: 0 1px 2px var(--ombra), 0 6px 18px -8px var(--ombra); }
+
+/* ---- Palette e modali, più compatti ---- */
+:root[data-stile="strumento"] .modal,
+:root[data-stile="strumento"] .palette { border-radius: 4px; }
+:root[data-stile="strumento"] .modal { padding: 12px 14px; gap: 8px; }
+:root[data-stile="strumento"] .modal strong { font-size: 0.9rem; }
+:root[data-stile="strumento"] .modal input,
+:root[data-stile="strumento"] .modal select { padding: 4px 8px; border-radius: 2px; font-size: 0.82rem; }
+:root[data-stile="strumento"] .modal-azioni button { padding: 4px 12px; border-radius: 2px; font-size: 0.78rem; }
+:root[data-stile="strumento"] #palette-input { padding: 8px 12px; font-size: 0.85rem; }
+:root[data-stile="strumento"] #palette-lista li { padding: 4px 10px; min-height: 28px; border-radius: 2px; font-size: 0.8rem; }
+:root[data-stile="strumento"] #palette-lista li[aria-selected="true"] kbd { color: var(--testo); }
+:root[data-stile="strumento"] #palette-lista kbd { font-family: var(--mono); font-size: 0.72rem; border-radius: 2px; }

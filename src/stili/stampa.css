@@ -1,0 +1,57 @@
+/* ==========================================================================
+   Stampa del documento (pulsante «Stampa» → `window.print()` di WebView2).
+   Si stampano SOLO le pagine dell'anteprima, una per foglio, al formato carta
+   di ogni pagina: le regole `@page { size: ... }` e l'altezza di ogni pagina le scrive
+   `main.ts` (`stampa.ts` → `regoleStampa`) in un foglio costruito da codice.
+   Prima di stampare `anteprima.preparaStampa()` carica tutte le pagine SVG.
+   Le regole usano !important perché il layout a schermo (index.html: body a
+   100vh, main in flex con overflow nascosto) va azzerato in ogni caso.
+   ========================================================================== */
+
+@page { margin: 0; }
+
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    background: #fff !important;
+  }
+  /* Tutto tranne <main> e il contenitore SVG delle definizioni condivise (glifi, clip path:
+     devono restare renderizzati, quindi niente display:none su quell'<svg>). */
+  body > :not(main):not(svg) { display: none !important; }
+  main { display: block !important; overflow: visible !important; }
+  main > :not(#pannello-anteprima) { display: none !important; }
+  #pannello-anteprima {
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  #placeholder-anteprima { display: none !important; }
+
+  /* Una pagina del documento per foglio. L'altezza in pt (appena sotto il foglio, per non
+     generare una pagina bianca per arrotondamenti) la dà la regola dinamica di `regoleStampa`. */
+  .pagina-svg {
+    width: 100% !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    overflow: hidden !important;
+    break-after: page;
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pagina-svg:last-child { break-after: auto; }
+  .pagina-svg svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    cursor: auto;
+  }
+  /* Evidenziazioni della sincronizzazione cursore → anteprima: non fanno parte del documento. */
+  .marcatore-sync { display: none !important; }
+}

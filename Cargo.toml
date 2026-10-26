@@ -1,0 +1,19 @@
+# Workspace Cargo — Typster (Tauri 2)
+# Fase 0: walking skeleton
+[workspace]
+resolver = "2"
+members  = [
+    "crates/typst-core",
+    "src-tauri",
+]
+
+# Ottimizzazioni per la distribuzione (F5-015).
+# panic = "abort": approvato dall'utente (DECISIONI.md D-013). In release un panic
+# termina il processo, quindi il recupero da Mutex avvelenato non e' raggiungibile;
+# resta attivo in debug/test (profili con unwind).
+[profile.release]
+lto           = true
+codegen-units = 1
+opt-level     = "s"
+strip         = true
+panic         = "abort"

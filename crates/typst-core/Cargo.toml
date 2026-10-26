@@ -1,0 +1,69 @@
+[package]
+name    = "typst-core"
+version = "0.1.1"
+edition = "2021"
+
+# Nessuna dipendenza da tauri: il crate deve restare puro e testabile headless.
+[dependencies]
+typst        = "=0.15.0"
+typst-ide    = "=0.15.0"
+typst-layout = "=0.15.0"
+# Percorso dell'AST per la conversione typst→md (Fase 6, D-007 opzione B).
+# Già presente in modo transitivo nell'albero (via lo stack Typst =0.15.0):
+# reso diretto per poter usare `typst_syntax::{parse, ast}` senza passare
+# dal ri-export `typst::syntax`.
+typst-syntax = "=0.15.0"
+typst-kit = { version = "=0.15.0", features = [
+    "embedded-fonts",    # font embedded (verificato: dep:typst-assets)
+    "scan-fonts",        # ricerca font di sistema (verificato: dep:fontdb + dirs)
+    "system-packages",   # cache @preview/@local standard (verificato: dep:dirs + universe-packages)
+    "universe-packages", # download/estrazione tar.gz (verificato: dep:flate2 + tar)
+    "system-downloader", # downloader HTTP nativo (verificato: dep:ureq)
+    "datetime",          # supporto data/ora (verificato: dep:chrono)
+] }
+typst-svg = "=0.15.0"
+typst-pdf = "=0.15.0"
+typst-render = "=0.15.0"
+# Data di creazione (UTC) dei PDF/A: versione ESATTA già nel Cargo.lock come
+# dipendenza transitiva di typst-kit (feature `datetime`); solo feature necessarie.
+chrono = { version = "=0.4.45", default-features = false, features = ["clock", "std"] }
+# Serializzazione pura dei tipi diagnostici verso il frontend: nessuna
+# dipendenza Tauri/UI introdotta, il crate resta puro e testabile headless.
+serde     = { version = "1", features = ["derive"] }
+# (De)serializzazione del file esterno degli snippet (snippets.json).
+serde_json = "1"
+# Directory di configurazione standard dell'OS per il file degli snippet
+# e per la cache dell'indice di Typst Universe (incremento 3.1).
+# Versione 6 già presente nell'albero via typst-kit (allineata al Cargo.lock).
+dirs       = "6"
+# Client HTTP sincrono per scaricare l'indice di Typst Universe (incremento 3.1).
+# Si usa l'API 2.x: il Cargo.lock blocca ureq a 2.12.1 (NON 3.x), già presente
+# nell'albero via typst-kit (feature `system-downloader`).
+ureq       = { version = "2", features = ["native-tls"] }
+# TLS di sistema (store certificati di Windows) e proxy da variabili d'ambiente,
+# come il downloader di typst-kit: serve dietro reti con ispezione TLS aziendale.
+# Versioni ESATTE già nel Cargo.lock (transitive di typst-kit): nessun crate nuovo.
+native-tls = "=0.2.18"
+env_proxy = "=0.4.1"
+# Parsing del `typst.toml` dei template (sezione `[template]`), incremento 3.3.
+# Versione 0.8.x già presente nell'albero (Cargo.lock blocca toml a 0.8.23).
+toml       = "0.8"
+# Parsing Markdown (CommonMark + GFM tabelle/strikethrough) per md→typst
+# (Fase 6, D-007 opzione B). Versione pinnata esatta (ultima stabile al
+# momento dell'introduzione). `default-features = false`: non ci serve il
+# renderer HTML del crate (emettiamo markup Typst direttamente dagli
+# `Event`), solo il parser core.
+pulldown-cmark = { version = "=0.13.4", default-features = false }
+# SHA-256 (F5-013/F5-022, D-012/D-016): chiave file→cronologia (hash del percorso) e
+# impronta del contenuto per l'anti-loop delle scritture proprie. Versione ESATTA
+# già nel Cargo.lock come dipendenza transitiva (0.10.9): nessun crate nuovo.
+sha2 = "=0.10.9"
+# Watcher ricorsivo della cartella osservata (F5-022, D-014/D-016): rinomine, file
+# aperti e albero. Major 8, versione esatta allineata a quella che il feature
+# "watcher" di typst-kit porterebbe (`notify = "8"`); nel Cargo.lock non c'era ancora.
+notify = "=8.2.0"
+
+[dev-dependencies]
+# Directory temporanee isolate per i test del modulo config: nessun test deve
+# scrivere nella config dir reale dell'utente. Versione 3 già nel Cargo.lock.
+tempfile = "3"

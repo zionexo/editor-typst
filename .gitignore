@@ -1,0 +1,26 @@
+# === Artefatti di build (Rust/Cargo) ===
+target/
+/src-tauri/target/
+
+# === Build frontend (Vite/TS) ===
+dist/
+
+# === Artefatti generati (eseguibili di test, ecc.) ===
+output/
+
+# === Dipendenze ===
+node_modules/
+
+# === Generati da Tauri a ogni build (rigenerabili) ===
+/src-tauri/gen/
+
+# === Materiale di riferimento di terze parti ===
+# sola consultazione, NON è codice del progetto (Muya/MarkText, MIT, re-fetchabile).
+# Vedi sorgenti/README.md per provenienza. Rimuovere questa riga per tracciarlo.
+/sorgenti/
+
+# === Misc ===
+*.lock.bak
+.DS_Store
+Thumbs.db
+
