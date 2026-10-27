@@ -495,6 +495,10 @@ pannelloStrumenti = creaPannelloStrumenti({
   selezione: () => editor.selezione(),
   sostituisci: (cambi, selezione) => editor.sostituisciIntervalli(cambi, selezione),
   conferma: (messaggio) => ask(messaggio, { title: "Modelli", kind: "warning" }),
+  cartellaDocumento: () => {
+    const p = gestoreFile.stato().percorso;
+    return p === null ? null : p.replace(/[\\/][^\\/]*$/, "");
+  },
   onAvviso: (msg) => {
     spanStato.textContent = msg;
   },

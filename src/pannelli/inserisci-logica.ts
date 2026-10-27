@@ -49,19 +49,71 @@ export function generaTabella(righe: number, colonne: number, intestazione: bool
   return `#table(\n${parti.join("\n")}\n)\n`;
 }
 
-/** `#figure(image(...), caption: [...]) <etichetta>`; didascalia ed etichetta facoltative. */
-export function generaFigura(percorso: string, didascalia: string, etichetta: string): string | null {
-  const p = percorso.trim();
+/** Esito di un generatore con messaggio d'errore specifico. */
+export type EsitoFigura = { codice: string } | { errore: string };
+
+/**
+ * Percorso da scrivere in `image(...)`: tolte le virgolette di «Copia come percorso» di Esplora
+ * risorse, barre normali; un percorso assoluto di Windows è accettato solo se sta dentro la cartella
+ * del documento (diventa relativo), perché Typst legge soltanto i file del progetto.
+ */
+export function percorsoImmagine(percorso: string, cartellaDocumento: string | null): EsitoFigura {
+  let p = percorso.trim();
+  while (p.length >= 2 && /^(["'])[\s\S]*\1$/.test(p)) {
+    p = p.slice(1, -1).trim();
+  }
+  if (p === "") {
+    return { errore: "Indica il percorso dell'immagine" };
+  }
+  if (/[\r\n]/.test(p)) {
+    return { errore: "Il percorso non può andare a capo" };
+  }
+  p = p.replace(/\\/g, "/");
+  if (/^([A-Za-z]:\/|\/\/)/.test(p)) {
+    const base = (cartellaDocumento ?? "").replace(/\\/g, "/").replace(/\/+$/, "");
+    if (base !== "" && p.toLowerCase().startsWith(`${base.toLowerCase()}/`)) {
+      return { codice: p.slice(base.length + 1) };
+    }
+    return {
+      errore:
+        "Typst legge solo i file della cartella del documento: copia l'immagine lì (o in una sua sottocartella) e scrivi il percorso relativo, es. img/foto.png",
+    };
+  }
+  return { codice: p };
+}
+
+/** `#figure(image(...), caption: [...]) <etichetta>`, oppure il motivo per cui non si può generare. */
+export function esitoFigura(
+  percorso: string,
+  didascalia: string,
+  etichetta: string,
+  cartellaDocumento: string | null = null,
+): EsitoFigura {
+  const p = percorsoImmagine(percorso, cartellaDocumento);
+  if ("errore" in p) {
+    return p;
+  }
   const e = etichetta.trim();
-  if (p === "" || /[\r\n]/.test(p) || (e !== "" && !etichettaValida(e))) {
-    return null;
+  if (e !== "" && !etichettaValida(e)) {
+    return { errore: "L'etichetta deve iniziare con una lettera e non può contenere spazi (es. fig:grafico)" };
   }
   const d = didascalia.trim();
-  const righe = [`  image(${stringaTypst(p)}),`];
+  const righe = [`  image(${stringaTypst(p.codice)}),`];
   if (d !== "") {
     righe.push(`  caption: [${escapaContenuto(d)}],`);
   }
-  return `#figure(\n${righe.join("\n")}\n)${e !== "" ? ` <${e}>` : ""}\n`;
+  return { codice: `#figure(\n${righe.join("\n")}\n)${e !== "" ? ` <${e}>` : ""}\n` };
+}
+
+/** `#figure(image(...), caption: [...]) <etichetta>`; didascalia ed etichetta facoltative. */
+export function generaFigura(
+  percorso: string,
+  didascalia: string,
+  etichetta: string,
+  cartellaDocumento: string | null = null,
+): string | null {
+  const r = esitoFigura(percorso, didascalia, etichetta, cartellaDocumento);
+  return "codice" in r ? r.codice : null;
 }
 
 /** Equazione in linea (`$x$`) o visualizzata (`$ x $`); rifiuta un `$` nel testo. */

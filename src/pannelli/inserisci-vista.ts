@@ -11,7 +11,7 @@ import {
   RIGHE_MAX,
   etichetteNelTesto,
   generaEquazione,
-  generaFigura,
+  esitoFigura,
   generaNota,
   generaRiferimento,
   generaTabella,
@@ -33,6 +33,8 @@ export interface OpzioniVistaInserisci {
   /** Inserisce il testo alla posizione del cursore (sostituendo la selezione). */
   inserisci: (testo: string) => void;
   onAvviso: (messaggio: string) => void;
+  /** Cartella del documento aperto (per rendere relativi i percorsi delle immagini), `null` se non salvato. */
+  cartellaDocumento?: () => string | null;
   /** Il pulsante «‹ Strumenti» già costruito. */
   indietro: () => HTMLElement;
   /** Chiede il ridisegno della vista (cambio di tipo). */
@@ -50,6 +52,7 @@ export function creaVistaInserisci(opz: OpzioniVistaInserisci): VistaInserisci {
   const figura = { percorso: "", didascalia: "", etichetta: "" };
   const equazione = { testo: "", visualizzata: true };
   let riferimento = "";
+  let erroreFigura = "";
   let nota = "";
 
   const testo = (valore: string, id: string, etichetta: string, scrivi: (v: string) => void, segnaposto = ""): HTMLElement => {
@@ -100,8 +103,15 @@ export function creaVistaInserisci(opz: OpzioniVistaInserisci): VistaInserisci {
             testo(figura.didascalia, "str-ins-didascalia", "Didascalia", (v) => (figura.didascalia = v)),
             testo(figura.etichetta, "str-ins-etichetta", "Etichetta", (v) => (figura.etichetta = v), "fig:grafico"),
           ],
-          genera: () => generaFigura(figura.percorso, figura.didascalia, figura.etichetta),
-          errore: "Serve il percorso dell'immagine; l'etichetta, se c'è, deve iniziare con una lettera",
+          genera: () => {
+            const r = esitoFigura(figura.percorso, figura.didascalia, figura.etichetta, opz.cartellaDocumento?.() ?? null);
+            erroreFigura = "errore" in r ? r.errore : "";
+            return "codice" in r ? r.codice : null;
+          },
+          // Letto solo dopo `genera`, che ne scrive il motivo.
+          get errore() {
+            return erroreFigura;
+          },
         };
       case "equazione":
         return {

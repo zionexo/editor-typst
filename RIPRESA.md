@@ -59,9 +59,9 @@ npm.cmd run check                                                     # misurato
 npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in ~6 min
 ```
 
-Ultimo build di produzione 2026-10-26 13:15, **versione 0.1.1** (Stampa + scheda Gantt su gantt-newgen incorporato,
+Ultimo build di produzione 2026-10-27 16:39, **versione 0.1.1** (Stampa + scheda Gantt su gantt-newgen incorporato,
 risincronizzato con la scorciatoia `week-iso` nelle intestazioni, D-150 del pacchetto; la scheda la offre come «Mese e settimana ISO»):
-`typster.exe` 41.762.304 byte, SHA-256 `E0836A9A8F05D60BBA5864AA0EA6DD7F7090751E0AE5EAEB95B61C79FF87C3CA`,
+`typster.exe` 41.762.304 byte, SHA-256 `1C1D21DA41F7F2C21796FB7B9992F0B42561D6425F130E7C5FC953532E4470D5`,
 con `WebView2Loader.dll`. È l'**unico exe rimasto** nel progetto, in **`dist\`** (le altre copie in `output\`
 sono state eliminate il 2026-10-26; restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0,
 entrambi vecchi e da rigenerare). Prova di avvio: vivo a 14 s, chiusura pulita.
@@ -172,3 +172,5 @@ Se qualcosa non torna con questi numeri, **qualcosa è cambiato da allora**.
 - **Aggiornamento di Impeccable** (v4.6.0 disponibile): `npx impeccable update` NON si applica («nessuna
   cartella di skill trovata»; non lanciare `install`, farebbe una copia doppia). Va
   aggiornato dal gestore dei plugin dell'app (`/plugin` in una sessione interattiva).
+
+**Inserisci → Figura** (2026-10-27): le virgolette di «Copia come percorso» vengono tolte; un percorso assoluto dentro la cartella del documento diventa relativo, fuori da essa dà un messaggio (Typst legge solo i file del progetto); messaggio specifico per etichette con spazi. Non provato dall'utente nell'exe. Idea aperta: pulsante «Scegli immagine…» che copia il file nel progetto (richiede un comando Rust).

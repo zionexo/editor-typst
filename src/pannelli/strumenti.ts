@@ -89,6 +89,8 @@ export interface OpzioniStrumenti {
   conferma: (messaggio: string) => Promise<boolean>;
   onAvviso: (messaggio: string) => void;
   onErrore: (errore: unknown) => void;
+  /** Cartella del documento aperto, `null` se non salvato. */
+  cartellaDocumento?: () => string | null;
 }
 
 /** Il pannello, con i punti d'ingresso usati da `main.ts`. */
@@ -161,6 +163,7 @@ export function creaPannelloStrumenti(opz: OpzioniStrumenti): PannelloStrumenti 
     testoEditor: opz.testoEditor,
     inserisci: opz.inserisci,
     onAvviso: opz.onAvviso,
+    cartellaDocumento: opz.cartellaDocumento,
     indietro: () => indietro("Strumenti", "lista"),
     ridisegna: () => disegna(),
   });

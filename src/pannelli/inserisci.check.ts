@@ -3,12 +3,14 @@
  */
 import {
   etichettaValida,
+  esitoFigura,
   etichetteNelTesto,
   generaEquazione,
   generaFigura,
   generaNota,
   generaRiferimento,
   generaTabella,
+  percorsoImmagine,
   stringaTypst,
 } from "./inserisci-logica.ts";
 
@@ -44,6 +46,23 @@ uguali(
 vero(generaFigura("", "x", "") === null, "percorso obbligatorio");
 vero(generaFigura("a.png", "", "1x") === null, "etichetta non valida");
 vero(generaFigura("a\nb.png", "", "") === null, "percorso con a capo");
+// percorsi di Esplora risorse: virgolette tolte, assoluto accettato solo dentro la cartella del documento
+const DOC = "C:\\Users\\x\\OneDrive - Azienda\\relazione";
+uguali(percorsoImmagine('"img\\a.png"', null), { codice: "img/a.png" }, "virgolette di «Copia come percorso»");
+uguali(percorsoImmagine(`"${DOC}\\img\\foto.png"`, DOC), { codice: "img/foto.png" }, "assoluto dentro la cartella del documento diventa relativo");
+uguali(percorsoImmagine(`${DOC.toLowerCase()}/foto.png`, DOC), { codice: "foto.png" }, "confronto senza maiuscole/minuscole e con barre normali");
+vero("errore" in percorsoImmagine("C:\\Altro\\foto.png", DOC), "assoluto fuori dalla cartella: errore");
+vero("errore" in percorsoImmagine(`${DOC}2\\foto.png`, DOC), "cartella con lo stesso prefisso ma diversa: errore");
+vero("errore" in percorsoImmagine("C:/foto.png", null), "assoluto con documento non salvato: errore");
+uguali(percorsoImmagine("/img/a.png", null), { codice: "/img/a.png" }, "radice del progetto (/) ammessa");
+const spazi = esitoFigura("a.png", "", "fig 1:");
+vero("errore" in spazi && spazi.errore.includes("spazi"), "etichetta con spazi: messaggio specifico");
+uguali(
+  generaFigura(`"${DOC}\\img\\f.png"`, "", "fig:f", DOC),
+  '#figure(\n  image("img/f.png"),\n) <fig:f>\n',
+  "figura da percorso assoluto interno",
+);
+
 uguali(stringaTypst('a"b'), '"a\\"b"', "virgolette nel percorso");
 
 // equazione
