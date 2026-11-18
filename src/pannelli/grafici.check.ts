@@ -1,7 +1,7 @@
 /**
  * grafici.check.ts — Verifica di `grafici-logica.ts`. Esce con errore al primo controllo fallito.
  */
-import { analizzaTabella, generaGrafico, RIGHE_MAX, SERIE_MAX, type OpzioniGrafico } from "./grafici-logica.ts";
+import { analizzaTabella, generaGrafico, MOTORI_GRAFICO, RIGHE_MAX, SERIE_MAX, type OpzioniGrafico } from "./grafici-logica.ts";
 
 function vero(c: boolean, msg: string): void {
   if (!c) {
@@ -54,7 +54,7 @@ vero(errore(Array.from({ length: RIGHE_MAX + 1 }, (_, i) => `${i};${i}`).join("\
 vero(errore("1;2\n2;inf").includes("numero"), "infinito non è un numero valido");
 
 // generazione
-const base: OpzioniGrafico = { tipo: "linee", titolo: "", etichettaX: "", etichettaY: "", legenda: false, didascalia: "", etichetta: "" };
+const base: OpzioniGrafico = { motore: "lilaq", tipo: "linee", titolo: "", etichettaX: "", etichettaY: "", legenda: false, didascalia: "", etichetta: "" };
 const d = dati("tempo;a;b\n1;2;3\n2;4;1");
 uguali(
   generaGrafico(d, base),
@@ -79,5 +79,29 @@ uguali(
 );
 vero(generaGrafico(d, { ...base, etichetta: "1x" }) === null, "etichetta non valida");
 vero(generaGrafico(dati("0,5;1,5\n1,5;2,5"), base)!.includes("(0.5, 1.5)"), "decimali con il punto nel codice");
+
+// CeTZ (cetz-plot)
+const cz = { ...base, motore: "cetz" } as const;
+uguali(
+  generaGrafico(d, cz),
+  "#cetz.canvas({\n  plot.plot(\n    size: (10, 6),\n    {\n      plot.add(((1, 2), (2, 4)))\n      plot.add(((1, 3), (2, 1)))\n    },\n  )\n})\n",
+  "cetz: linee, due serie",
+);
+uguali(
+  generaGrafico(dati("1;2\n2;4"), { ...cz, tipo: "punti", etichettaX: "Tempo", etichettaY: "V", legenda: true }),
+  '#cetz.canvas({\n  plot.plot(\n    size: (10, 6),\n    x-label: [Tempo],\n    y-label: [V],\n    {\n      plot.add(((1, 2), (2, 4)), mark: "o", style: (stroke: none), label: [Serie 1])\n    },\n  )\n})\n',
+  "cetz: punti con assi e legenda",
+);
+uguali(
+  generaGrafico(d, { ...cz, tipo: "barre", legenda: true }),
+  '#cetz.canvas({\n  plot.plot(\n    size: (10, 6),\n    {\n      plot.add-bar(((1, 2, 3), (2, 4, 1)), x-key: 0, y-key: (1, 2,), mode: "clustered", bar-width: 0.8, labels: ([a], [b],))\n    },\n  )\n})\n',
+  "cetz: barre affiancate con legenda",
+);
+vero(
+  generaGrafico(dati("1;2\n2;4"), { ...cz, titolo: "T", didascalia: "D", etichetta: "fig:c" })!.includes("  stack(\n    dir: ttb,"),
+  "cetz: titolo in figura",
+);
+vero(generaGrafico(d, { ...cz, etichetta: "1x" }) === null, "cetz: etichetta non valida");
+uguali(MOTORI_GRAFICO.map((m) => m.pacchetti), [["lilaq"], ["cetz", "cetz-plot"]], "pacchetti per motore");
 
 console.log("OK grafici");

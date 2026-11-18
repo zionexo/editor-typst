@@ -25,7 +25,7 @@ layout e la tipografia sono quelle di Typst, e l'intero ecosistema di pacchetti 
 - **Strumenti per creare pagine**: *Modelli* (documenti ripetitivi da un modulo, anche
   salvando i propri), *Pagina* (formato, margini, intestazione, numerazione), *Inserisci*
   (tabella, figura, equazione, riferimento, nota), *Equazioni* (strutture matematiche,
-  pacchetti physica, mitex ed equate), *Grafici* (tabella incollata → grafico con lilaq) e
+  pacchetti physica, mitex ed equate), *Grafici* (tabella incollata → grafico con lilaq o CeTZ) e
   *Gantt* (cronoprogrammi con attività, dipendenze e pietre miliari, con il pacchetto gantt-newgen, incorporato: funziona anche senza rete).
 - **Esportazione** in PDF (anche PDF/A), PNG, SVG, testo semplice, HTML, LaTeX e Markdown.
 - **Stampa** diretta del documento formattato (pulsante *Stampa*), con la

@@ -5,7 +5,7 @@
 > data, non leggerlo tutto). Si sovrascrive a ogni aggiornamento. Leggilo prima
 > di `PROGETTO.md`.
 
-**Ultimo aggiornamento:** 2026-10-16 (sera). **Ciclo di vita:** il progetto non ha
+**Ultimo aggiornamento:** 2026-11-17. **Ciclo di vita:** il progetto non ha
 il campo `Ciclo di vita`; di fatto è in **develop** dal 2026-09-29. Lo stato per fase è nelle note «Stato:» di `PIANO.md`.
 
 ## Leggi in questo ordine, se riprendi da zero
@@ -47,24 +47,33 @@ provato sull'exe di produzione: help in linea, Modelli, Pagina («funziona»);
 
 ## Verifica rapida che tutto sia ancora come descritto
 
-Misurata il **2026-10-16** (PowerShell; prima `. ...\code_tools\rust_bundle\activate.ps1`
+Misurata il **2026-11-17** (PowerShell; prima `. ...\code_tools\rust_bundle\activate.ps1`
 e `$env:CARGO_TARGET_DIR="C:\Users\<utente>\et_target"`):
 
 ```
-cargo test -p typst-core -p typster                                   # misurato: 528 passed (2 ignored) + 17 + 7 (2 ignored) + 6, 0 failed
-cargo test -p typst-core --test inserisci_snippet -- --ignored        # misurato: 2 passed (richiede la RETE: scarica lilaq, physica, mitex, equate)
+cargo test -p typst-core -p typster                                   # misurato: 537 passed (2 ignored) + 17 + 8 (3 ignored) + 4 + 6, 0 failed
+cargo test -p typst-core --test inserisci_snippet -- --ignored        # NON rimisurato il 2026-11-17 (richiede la RETE: lilaq, physica, mitex, equate)
 cargo clippy -p typst-core -p typster --all-targets -- -D warnings    # misurato: exit 0
+cargo fmt --check -p typst-core -p typster                            # misurato: exit 0
 npm.cmd run typecheck                                                 # misurato: exit 0
-npm.cmd run check                                                     # misurato: exit 0, 24 righe «OK»
-npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in ~6 min
+npm.cmd run check                                                     # misurato: exit 0, 26 righe «OK»
+npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in 6 min 42 s
 ```
 
-Ultimo build di produzione 2026-10-27 16:39, **versione 0.1.1** (Stampa + scheda Gantt su gantt-newgen incorporato,
-risincronizzato con la scorciatoia `week-iso` nelle intestazioni, D-150 del pacchetto; la scheda la offre come «Mese e settimana ISO»):
-`typster.exe` 41.762.304 byte, SHA-256 `1C1D21DA41F7F2C21796FB7B9992F0B42561D6425F130E7C5FC953532E4470D5`,
-con `WebView2Loader.dll`. È l'**unico exe rimasto** nel progetto, in **`dist\`** (le altre copie in `output\`
-sono state eliminate il 2026-10-26; restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0,
-entrambi vecchi e da rigenerare). Prova di avvio: vivo a 14 s, chiusura pulita.
+Ultimo build di produzione **2026-11-17 18:29**, versione 0.1.1 (aggiunge **Nuova finestra**, vedi sotto):
+`typster.exe` 41.768.448 byte, SHA-256 `0947C08AAE5FF45E1A71DEA295D97A80C3AFDA0672A59859544F78CAB16ED872`,
+con `WebView2Loader.dll` (160.320 byte). Copie in **`dist\`** (exe + DLL, decisione dell'utente
+2026-11-17: `dist\` è la cartella della release di produzione) e in `C:\Users\<utente>\et_target\release\`.
+`dist\` è ignorata da git. `release\` (exe, DLL, zip `Typster-0.1.1-windows-x64.zip`, `SHA256SUMS.txt`) è stata
+aggiornata il 2026-11-18 con **questo stesso exe** (stesso SHA-256): il nome 0.1.1 ora contiene un exe diverso da
+quello del 2026-10-27 (versione non incrementata). Nessun `git push` fatto.
+Restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0, vecchi e da rigenerare.
+**Nuova finestra** (2026-11-17): `Ctrl+Maiusc+N` o palette «Nuova finestra» avvia **un altro processo**
+Typster (comando Rust `nuova_finestra` in `src-tauri/src/lib.rs`: `spawn` di `current_exe()`, senza attesa;
+comando `file.nuovaFinestra` in `src/main.ts`). Ogni finestra ha World e osservatore propri; impostazioni,
+cronologia e `crash.log` sono condivisi su disco (impostazioni: vince l'ultimo salvataggio). Perché e limiti:
+`DECISIONI.md`, voce **2026-11-17**. Code-reviewer: nessun critico. **Provato dall'utente sull'exe: funziona.**
+Non verificato: `current_exe` + `spawn` dentro il pacchetto MSIX.
 Versione 0.1.1 aggiornata in package.json, Cargo (core e guscio), tauri.conf.json, Package.appxmanifest
 (0.1.1.0), README, manuale, scheda Store.
 **Gantt** (2026-10-23): scheda del pannello Strumenti sul pacchetto dell'utente **gantt-newgen 0.1.0**
@@ -103,9 +112,10 @@ Se qualcosa non torna con questi numeri, **qualcosa è cambiato da allora**.
 - **Asset dell'exe compressi**: cercare una stringa nell'exe non dimostra nulla;
   controllare `dist/assets/*.js` (stessa build) e l'ora del file.
 - **Parser WASM desincronizzato**: il predefinito è `lezer` per questo.
-- **`dist/`** non è un posto per l'exe e non va usata come cartella di lavoro; se
-  l'exe è aperto la copia in `output\Typster-prova\` fallisce (chiuderlo o avviare
-  da `et_target\release`). Senza `activate.ps1` `cargo` non è nel PATH.
+- **`dist/`** è anche la cartella di output di Vite: ogni `npm run build`/`tauri build` la
+  **svuota** (exe e DLL compresi) e fallisce con EPERM se `dist\typster.exe` è aperto. Dal
+  2026-11-17 è la cartella della release di produzione: dopo ogni build **ricopiare** exe e
+  DLL da `et_target\release\`. Senza `activate.ps1` `cargo` non è nel PATH.
 - **Prove GUI con Edge headless + CDP sono fragili**; il test decisivo è l'exe di
   produzione (B-005, CSP).
 - Una prova che non può fallire non prova nulla (un `|| true` in un check ne ha
@@ -128,6 +138,21 @@ Se qualcosa non torna con questi numeri, **qualcosa è cambiato da allora**.
    riferimento, immagini mancanti), modelli di pacchetto Typst Universe.
 
 ## Cose da decidere, non da fare da soli
+
+- **Exe unico senza `WebView2Loader.dll`** (richiesto dall'utente 2026-11-17). La parte grafica del
+  frontend è già dentro l'exe; l'unico file esterno è il caricatore (160 KB), perché
+  `webview2-com-sys` lo collega **solo come DLL su toolchain GNU** (statico solo su MSVC). Il motore
+  WebView2 è un componente di Windows e non si incorpora. Strade: **(1) MSVC** (exe unico vero; serve anche
+  per lo Store): verificato 2026-11-17 che su questo PC **non c'è** nessun Build Tools/SDK, l'utente
+  **non è amministratore** (UAC chiede credenziali admin), `winget` c'è e offre
+  `Microsoft.VisualStudio.2022.BuildTools` 17.14.45; **(2)** lanciatore che si estrae (un solo file ma non
+  un exe unico vero, secondo crate); **(3)** patch di `webview2-com-sys` (fragile, sconsigliata).
+  **Stato 2026-11-17: l'utente ha rimandato** («lasciamo perdere per ora»). Nulla è installato né
+  creato (nessuna cartella `msvc_bundle`). Un tentativo di MSVC portabile senza amministratore
+  (`portable-msvc.py` di mmozeiko, letto per intero: scarica solo da Microsoft con SHA-256) è stato
+  **negato dal sistema di permessi** e non è stato aggirato; su un PC aziendale non-admin conviene prima
+  sentire l'IT. Per riprendere: il piano è Build Tools (o MSVC portabile) → target
+  `x86_64-pc-windows-msvc` → `tauri build --no-bundle` → exe unico (verificare che il loader sia statico).
 
 - **Pubblicazione della versione 0.1.0**: `README.md`, `docs/manuale.md` e `LICENSE` sono
   committati in locale; il pacchetto di rilascio è pronto in `output/release/`

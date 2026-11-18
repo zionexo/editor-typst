@@ -89,6 +89,9 @@ chiamata nel documento principale, e le note con suggerimenti aiutano a corregge
 
 - **Nuovo** (`Ctrl+N`), **Apri** (`Ctrl+O`), **Salva** (`Ctrl+S`). Prima di sostituire un
   documento con modifiche non salvate l'app chiede se salvarle.
+- **Nuova finestra** (`Ctrl+Maiusc+N`, o dalla palette): avvia un'altra copia di Typster, con
+  il suo documento. Le impostazioni sono condivise: se le cambi in due finestre, vale l'ultimo
+  salvataggio.
 - **Apri cartella** (`Ctrl+Maiusc+O`): apre un **progetto** a più file (documenti, immagini,
   dati). Gli `#include`, le immagini e i file di dati si risolvono rispetto alla cartella.
   *Ricarica risorse del progetto* (dalla palette) rilegge i file dopo averli modificati
@@ -194,10 +197,14 @@ Per comporre formule senza ricordare la sintassi.
    Sotto la tabella vedi subito «N righe, M serie» oppure l'errore con riga e colonna.
 2. Scegli **linee**, **punti** o **barre**; aggiungi titolo, etichette degli assi, legenda
    con i nomi delle serie, didascalia ed etichetta.
-3. **Inserisci nel documento**: il grafico usa il pacchetto *lilaq*.
+3. Scegli la **libreria**: *Lilaq* per i grafici di dati standard (assi, legenda e stile
+   curati in automatico); *CeTZ* (cetz-plot) per i grafici complessi, perché il codice
+   generato è un disegno che puoi ritoccare con annotazioni, frecce, più assi o elementi
+   grafici liberi. Con CeTZ le barre di più serie sono affiancate.
+4. **Inserisci nel documento**: i pacchetti scelti si scaricano alla prima compilazione.
 
-Limiti della versione attuale: al massimo 2000 righe e 6 serie; con le barre e più serie, il
-pacchetto le sovrappone (meglio linee o punti). Grafici di una funzione e diagrammi di
+Limiti della versione attuale: al massimo 2000 righe e 6 serie; con le barre e più serie,
+Lilaq le sovrappone (meglio linee o punti, oppure la libreria CeTZ). Grafici di una funzione e diagrammi di
 flusso non sono ancora disponibili.
 
 ### 6.6 Gantt
@@ -284,6 +291,7 @@ Le scelte si salvano e si applicano subito, senza riavviare.
 |---|---|
 | Palette comandi | `Ctrl+P` (o `Ctrl+Maiusc+P`) |
 | Nuovo documento | `Ctrl+N` |
+| Nuova finestra | `Ctrl+Maiusc+N` |
 | Apri file | `Ctrl+O` |
 | Apri cartella-progetto | `Ctrl+Maiusc+O` |
 | Salva | `Ctrl+S` |

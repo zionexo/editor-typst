@@ -1,13 +1,21 @@
 /**
  * grafici-vista.ts — Vista «Grafici» del pannello Strumenti (v1): si incolla una
  * tabella (prima colonna X, le altre serie), si sceglie linee, punti o barre e si
- * inserisce il grafico `lilaq` alla posizione del cursore. L'import del pacchetto
+ * inserisce il grafico (`lilaq` o `cetz`) alla posizione del cursore. L'import del pacchetto
  * si aggiunge in cima al documento solo se manca. Logica in `grafici-logica.ts`.
  */
 
 import { campoForm, el, pulsante } from "./dom";
 import { PACCHETTI, pianoInserimento, type PianoInserimento } from "./equazioni-logica";
-import { TIPI_GRAFICO, analizzaTabella, generaGrafico, type OpzioniGrafico, type TipoGrafico } from "./grafici-logica";
+import {
+  MOTORI_GRAFICO,
+  TIPI_GRAFICO,
+  analizzaTabella,
+  generaGrafico,
+  type MotoreGrafico,
+  type OpzioniGrafico,
+  type TipoGrafico,
+} from "./grafici-logica";
 
 /** Dipendenze della vista (le fornisce il pannello Strumenti). */
 export interface OpzioniVistaGrafici {
@@ -29,6 +37,7 @@ export interface VistaGrafici {
 export function creaVistaGrafici(opz: OpzioniVistaGrafici): VistaGrafici {
   let tabella = "";
   const o: OpzioniGrafico = {
+    motore: "lilaq",
     tipo: "linee",
     titolo: "",
     etichettaX: "",
@@ -58,7 +67,7 @@ export function creaVistaGrafici(opz: OpzioniVistaGrafici): VistaGrafici {
       opz.onAvviso("L'etichetta deve iniziare con una lettera (es. fig:andamento)");
       return;
     }
-    const piano = pianoInserimento(opz.testoEditor(), opz.selezione(), codice, ["lilaq"]);
+    const piano = pianoInserimento(opz.testoEditor(), opz.selezione(), codice, MOTORI_GRAFICO.find((m) => m.id === o.motore)?.pacchetti ?? ["lilaq"]);
     opz.sostituisci(piano.cambi, piano.selezione);
     opz.onAvviso("Grafico inserito");
   }
@@ -90,6 +99,27 @@ export function creaVistaGrafici(opz: OpzioniVistaGrafici): VistaGrafici {
     });
     aggiornaStato();
     fuori.push(campoForm("Dati (incolla una tabella)", t, "str-gr-tabella"), stato);
+
+    // Libreria: lilaq per i grafici di dati standard, CeTZ per quelli da ritoccare a mano
+    const motore = el("select", "str-input");
+    for (const m of MOTORI_GRAFICO) {
+      const op = el("option", undefined, m.etichetta);
+      op.value = m.id;
+      op.selected = m.id === o.motore;
+      motore.append(op);
+    }
+    const nota = el("p", "str-descrizione");
+    const aggiornaNota = (): void => {
+      const m = MOTORI_GRAFICO.find((x) => x.id === o.motore);
+      const versioni = (m?.pacchetti ?? []).map((p) => `${p} ${PACCHETTI[p].versione}`).join(" + ");
+      nota.textContent = `${m?.descrizione ?? ""} Pacchetti: ${versioni} (si scaricano alla prima compilazione; serve la rete).`;
+    };
+    motore.addEventListener("change", () => {
+      o.motore = motore.value as MotoreGrafico;
+      aggiornaNota();
+    });
+    aggiornaNota();
+    fuori.push(campoForm("Libreria", motore, "str-gr-motore"), nota);
 
     // Tipo
     const tipo = el("select", "str-input");
@@ -123,11 +153,7 @@ export function creaVistaGrafici(opz: OpzioniVistaGrafici): VistaGrafici {
       testo(o.didascalia, "str-gr-didascalia", "Didascalia (crea una figura)", (v) => (o.didascalia = v)),
       testo(o.etichetta, "str-gr-etichetta", "Etichetta (per citarla)", (v) => (o.etichetta = v), "fig:andamento"),
       pulsante("Inserisci nel documento", "str-primario", inserisci),
-      el(
-        "p",
-        "str-descrizione",
-        `Usa il pacchetto lilaq ${PACCHETTI.lilaq.versione} (si scarica alla prima compilazione; serve la rete). Il grafico va alla posizione del cursore.`,
-      ),
+      el("p", "str-descrizione", "Il grafico va alla posizione del cursore."),
     );
     return fuori;
   }

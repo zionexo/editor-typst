@@ -138,6 +138,11 @@ export interface GestoreFile {
   /** Salva sul percorso corrente; se assente, chiede "salva con nome". */
   salva(): Promise<void>;
   /**
+   * «Salva con nome»: chiede sempre dove salvare (proponendo il file corrente) e
+   * da lì in poi il documento è quello nuovo. Annullare il dialog non cambia nulla.
+   */
+  salvaConNome(): Promise<void>;
+  /**
    * Salvataggio automatico: scrive sul percorso corrente se `autosave` è attivo,
    * il documento ha modifiche e non c'è un conflitto in sospeso. Mai un dialog.
    */
@@ -700,6 +705,12 @@ export function creaGestoreFile(
     await salvaConNome();
   }
 
+  /** Comando «Salva con nome»: come `salva`, ma il dialog si apre anche se il file esiste già. */
+  async function salvaConNomeEsplicito(): Promise<void> {
+    await attesaSalvataggio;
+    await salvaConNome(percorso ?? undefined);
+  }
+
   /** Cancella il timer del salvataggio automatico, se armato. */
   function annullaAutosave(): void {
     if (timerAutosave !== null) {
@@ -1228,6 +1239,7 @@ export function creaGestoreFile(
     apriCartella,
     apriFileProgetto,
     salva,
+    salvaConNome: salvaConNomeEsplicito,
     autosalva,
     gestisciModificaEsterna,
     versioni,

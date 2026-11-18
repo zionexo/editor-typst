@@ -147,6 +147,50 @@ Vedi @fig:prova.
     assert_eq!(pagine, 1);
 }
 
+/// Grafici `cetz` (cetz-plot) come li genera lo strumento «Grafici» con la libreria CeTZ
+/// (`src/pannelli/grafici-logica.ts`). Richiede la rete: stesso comando del test lilaq.
+#[test]
+#[ignore = "richiede la rete per scaricare cetz e cetz-plot"]
+fn grafici_cetz_compilano() {
+    let doc = r#"#import "@preview/cetz:0.5.2"
+#import "@preview/cetz-plot:0.1.4": plot
+
+#figure(
+  stack(
+    dir: ttb,
+    spacing: 0.8em,
+    align(center, strong[Prova \[x\]]),
+    cetz.canvas({
+      plot.plot(
+        size: (10, 6),
+        x-label: [Tempo],
+        y-label: [Valore],
+        {
+          plot.add(((1, 2), (2, 4), (3, 3)), label: [Serie A])
+          plot.add(((1, 3), (2, 1), (3, 2)), mark: "o", style: (stroke: none), label: [Serie B])
+        },
+      )
+    }),
+  ),
+  caption: [Didascalia],
+) <fig:prova>
+
+Vedi @fig:prova.
+
+#cetz.canvas({
+  plot.plot(
+    size: (10, 6),
+    {
+      plot.add-bar(((1, 2, 3), (2, 4, 1), (3, 5, 2)), x-key: 0, y-key: (1, 2,), mode: "clustered", bar-width: 0.8, labels: ([a], [b],))
+    },
+  )
+})
+"#;
+    let (pagine, errori) = compila(doc);
+    assert!(errori.is_empty(), "{errori:?}");
+    assert_eq!(pagine, 1);
+}
+
 /// Strutture dello strumento «Equazioni» che usano pacchetti (physica, mitex, equate),
 /// con le versioni di `src/pannelli/equazioni-logica.ts`. Richiede la rete.
 #[test]

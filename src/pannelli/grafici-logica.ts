@@ -1,10 +1,11 @@
 /**
  * grafici-logica.ts — Logica pura dello strumento «Grafici» (v1): analisi di una
- * tabella incollata e generazione del codice `lilaq` (linee, punti, barre).
+ * tabella incollata e generazione del codice `lilaq` o `cetz` (linee, punti, barre).
  * Nessun DOM, nessun Tauri: verificata da `grafici.check.ts`. Contratto e piano in
  * `DECISIONI.md` («Strumento «Grafici»»).
  */
 
+import type { IdPacchetto } from "./equazioni-logica.ts";
 import { etichettaValida } from "./inserisci-logica.ts";
 import { escapaContenuto } from "./pagina-logica.ts";
 
@@ -17,6 +18,25 @@ export const TIPI_GRAFICO: readonly { id: TipoGrafico; etichetta: string; funzio
   { id: "linee", etichetta: "Linee", funzione: "plot" },
   { id: "punti", etichetta: "Punti", funzione: "scatter" },
   { id: "barre", etichetta: "Barre", funzione: "bar" },
+];
+
+/** Libreria che disegna il grafico: `lilaq` (dati, assi e legenda automatici) o `cetz` (più libera). */
+export type MotoreGrafico = "lilaq" | "cetz";
+
+export const MOTORI_GRAFICO: readonly { id: MotoreGrafico; etichetta: string; descrizione: string; pacchetti: readonly IdPacchetto[] }[] = [
+  {
+    id: "lilaq",
+    etichetta: "Lilaq — grafici di dati",
+    descrizione: "Assi, legenda e stile curati in automatico: la scelta per grafici scientifici standard.",
+    pacchetti: ["lilaq"],
+  },
+  {
+    id: "cetz",
+    etichetta: "CeTZ — grafici complessi",
+    descrizione:
+      "Il codice generato è un disegno CeTZ: si presta a essere ritoccato con annotazioni, frecce, più assi o elementi grafici liberi.",
+    pacchetti: ["cetz", "cetz-plot"],
+  },
 ];
 
 /** Dati di un grafico: la colonna X e una o più serie Y, con i nomi se la tabella aveva un'intestazione. */
@@ -95,6 +115,7 @@ export function analizzaTabella(testo: string): EsitoTabella {
 
 /** Opzioni del grafico. */
 export interface OpzioniGrafico {
+  motore: MotoreGrafico;
   tipo: TipoGrafico;
   titolo: string;
   etichettaX: string;
@@ -108,15 +129,11 @@ export interface OpzioniGrafico {
 
 const lista = (v: readonly number[]): string => `(${v.map(String).join(", ")})`;
 
-/**
- * Codice `lilaq` del grafico. Con didascalia o etichetta il diagramma va in una
- * `#figure`. `null` se l'etichetta non è valida.
- */
-export function generaGrafico(dati: DatiGrafico, o: OpzioniGrafico): string | null {
-  const e = o.etichetta.trim();
-  if (e !== "" && !etichettaValida(e)) {
-    return null;
-  }
+const coppie = (x: readonly number[], y: readonly number[]): string =>
+  `(${x.map((v, i) => `(${v}, ${y[i]})`).join(", ")})`;
+
+/** Corpo `lilaq` del diagramma (senza `#`). */
+function diagrammaLilaq(dati: DatiGrafico, o: OpzioniGrafico): string {
   const funzione = TIPI_GRAFICO.find((t) => t.id === o.tipo)?.funzione ?? "plot";
   const righe: string[] = [];
   if (o.titolo.trim() !== "") righe.push(`title: [${escapaContenuto(o.titolo.trim())}],`);
@@ -127,7 +144,69 @@ export function generaGrafico(dati: DatiGrafico, o: OpzioniGrafico): string | nu
     const etichettaSerie = o.legenda ? `, label: [${escapaContenuto(nome)}]` : "";
     righe.push(`lq.${funzione}(${lista(dati.x)}, ${lista(y)}${etichettaSerie}),`);
   });
-  const diagramma = `lq.diagram(\n${righe.map((r) => `  ${r}`).join("\n")}\n)`;
+  return `lq.diagram(\n${righe.map((r) => `  ${r}`).join("\n")}\n)`;
+}
+
+/** Larghezza delle barre: 80% della distanza minima fra due X (1 se coincidono tutte). */
+function larghezzaBarre(x: readonly number[]): number {
+  const ordinati = [...new Set(x)].sort((a, b) => a - b);
+  let minimo = Infinity;
+  for (let i = 1; i < ordinati.length; i++) minimo = Math.min(minimo, ordinati[i] - ordinati[i - 1]);
+  return Number.isFinite(minimo) ? Number(((minimo * 4) / 5).toPrecision(6)) : 1;
+}
+
+/**
+ * Corpo `cetz` del diagramma (senza `#`): un `cetz.canvas` con `plot.plot` di cetz-plot.
+ * cetz-plot non ha il titolo: con un titolo il canvas va in uno `stack` sotto il testo.
+ * Le barre di più serie sono affiancate (`clustered`), non sovrapposte.
+ */
+function diagrammaCetz(dati: DatiGrafico, o: OpzioniGrafico): string {
+  const nome = (i: number): string => escapaContenuto(dati.nomiColonne[i + 1] ?? `Serie ${i + 1}`);
+  const aggiunte: string[] = [];
+  if (o.tipo === "barre") {
+    const righe = `(${dati.x.map((v, i) => `(${[v, ...dati.serie.map((s) => s[i])].join(", ")})`).join(", ")})`;
+    const chiavi = dati.serie.map((_, i) => i + 1).join(", ");
+    const etichette = o.legenda ? `, labels: (${dati.serie.map((_, i) => `[${nome(i)}]`).join(", ")},)` : "";
+    aggiunte.push(
+      `plot.add-bar(${righe}, x-key: 0, y-key: (${chiavi},), mode: "clustered", bar-width: ${larghezzaBarre(dati.x)}${etichette})`,
+    );
+  } else {
+    dati.serie.forEach((y, i) => {
+      const stile = o.tipo === "punti" ? ', mark: "o", style: (stroke: none)' : "";
+      const etichettaSerie = o.legenda ? `, label: [${nome(i)}]` : "";
+      aggiunte.push(`plot.add(${coppie(dati.x, y)}${stile}${etichettaSerie})`);
+    });
+  }
+  const opzioni = ["size: (10, 6),"];
+  if (o.etichettaX.trim() !== "") opzioni.push(`x-label: [${escapaContenuto(o.etichettaX.trim())}],`);
+  if (o.etichettaY.trim() !== "") opzioni.push(`y-label: [${escapaContenuto(o.etichettaY.trim())}],`);
+  const canvas = [
+    "cetz.canvas({",
+    "  plot.plot(",
+    ...opzioni.map((r) => `    ${r}`),
+    "    {",
+    ...aggiunte.map((r) => `      ${r}`),
+    "    },",
+    "  )",
+    "})",
+  ].join("\n");
+  const t = o.titolo.trim();
+  if (t === "") return canvas;
+  const interno = canvas.replace(/^/gm, "  ");
+  return `stack(\n  dir: ttb,\n  spacing: 0.8em,\n  align(center, strong[${escapaContenuto(t)}]),\n${interno},\n)`;
+}
+
+/**
+ * Codice del grafico con la libreria scelta (`o.motore`). Con didascalia o etichetta il
+ * diagramma va in una `#figure`. `null` se l'etichetta non è valida. L'import dei
+ * pacchetti (`MOTORI_GRAFICO[..].pacchetti`) lo aggiunge il chiamante.
+ */
+export function generaGrafico(dati: DatiGrafico, o: OpzioniGrafico): string | null {
+  const e = o.etichetta.trim();
+  if (e !== "" && !etichettaValida(e)) {
+    return null;
+  }
+  const diagramma = o.motore === "cetz" ? diagrammaCetz(dati, o) : diagrammaLilaq(dati, o);
   const d = o.didascalia.trim();
   if (d === "" && e === "") {
     return `#${diagramma}\n`;

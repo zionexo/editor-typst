@@ -2913,3 +2913,21 @@ Resta del piano: grafico di una funzione `y = f(x)` (cetz-plot o lilaq `plot` co
 **Verifica.** Test unitari in `pacchetti_incorporati` (lookup, cartelle, pacchetti diversi, `ORIGINE.txt` assente, coerenza byte per byte con il disco) e in `world.rs` (priorità dell'installato e ripiego, con una cartella temporanea come radice dei pacchetti: nessun accesso a `%APPDATA%`/`%LOCALAPPDATA%`); integrazione in `tests/pacchetto_incorporato.rs` (offline, due facce dello schema e versione non incorporata).
 
 **Limiti.** (1) Una sola versione incorporata; (2) l'installato prevale **per intero**: un `@local/gantt-newgen:0.1.0` incompleto non viene completato con i file incorporati (errore di file mancante); (3) vale solo per la compilazione di `EditorWorld`: elenco e completamento dei pacchetti (`packages.rs`) vedono solo ciò che è su disco; (4) l'eseguibile cresce della dimensione dei sorgenti del pacchetto (23 file di testo; misura non fatta); (5) la prova dell'exe di produzione spetta all'utente.
+
+## 2026-11-02 — Grafici: scelta della libreria (lilaq / CeTZ)
+
+**Decisione.** Nella scheda «Grafici» un menu «Libreria» sceglie fra `lilaq` 0.6.0 (predefinita: grafici di dati standard) e `cetz` 0.5.2 + `cetz-plot` 0.1.4 (grafici complessi: il codice è un disegno CeTZ da ritoccare). La scelta è **manuale**, non automatica: «complessità» non è deducibile dalla sola tabella. Tipi di grafico, titolo, assi, legenda, didascalia ed etichetta valgono per entrambe.
+
+**Realizzazione.** `generaGrafico` delega a `diagrammaLilaq` / `diagrammaCetz`; `MOTORI_GRAFICO` elenca i pacchetti da importare (`cetz` come `cetz`, `cetz-plot` come `plot`). cetz-plot non ha il titolo: con un titolo il canvas va in uno `stack` sotto il testo. Le barre CeTZ di più serie usano `mode: "clustered"` (affiancate; la larghezza è l'80% della distanza minima fra le X), a differenza di lilaq che le sovrappone.
+
+**Verifica.** `grafici.check.ts` (stringhe generate) e `grafici_cetz_compilano` in `tests/inserisci_snippet.rs` (`--ignored`, rete): compilano davvero, misurato 2026-11-02 con cetz 0.5.2 + cetz-plot 0.1.4. Prova dell'exe di produzione: spetta all'utente.
+
+## 2026-11-17 — Più finestre: una nuova istanza di processo
+
+**Decisione.** «Nuova finestra» (`Ctrl+Maiusc+N`, comando `file.nuovaFinestra`) avvia un altro processo Typster: il comando Rust `nuova_finestra` fa `spawn` di `current_exe()` e non attende il figlio. Non si è scelto di aprire una seconda finestra Tauri nello stesso processo.
+
+**Motivo.** Lo stato Rust è unico per processo (un solo `EditorWorld`, un solo `osservatore::Condiviso`, finestra `main`): due finestre nello stesso processo si sovrascriverebbero il documento. Un processo per finestra non tocca lo stato e costa 8 righe.
+
+**Condiviso su disco.** `impostazioni.json` (scrittura atomica, vince l'ultima: una finestra non vede le modifiche dell'altra fino al riavvio), cronologia (chiave per file), `crash.log` (solo aggiunta). Lo stesso file in due finestre: il controllo «modificato da fuori» (F5-022) segnala il conflitto al salvataggio.
+
+**Limiti.** (1) Più memoria per finestra (scansione font per processo). (2) Nessun file passato da riga di comando, nessun single-instance. (3) Fuori da Windows un figlio terminato prima del padre resta zombie fino alla chiusura del padre; il prodotto è per Windows (MSIX). (4) Non verificato: `current_exe` + `spawn` dentro il pacchetto MSIX. (5) La prova dell'exe di produzione spetta all'utente.

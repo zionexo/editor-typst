@@ -10,7 +10,7 @@ import type { Cambio } from "./strumenti-logica";
 
 // ---- Pacchetti ----
 
-export type IdPacchetto = "physica" | "mitex" | "equate" | "lilaq" | "gantt-newgen";
+export type IdPacchetto = "physica" | "mitex" | "equate" | "lilaq" | "cetz" | "cetz-plot" | "gantt-newgen";
 
 /** Versioni dall'indice di Typst Universe del 2026-10-16 (da riverificare). */
 export const PACCHETTI: Readonly<Record<IdPacchetto, { versione: string; descrizione: string }>> = {
@@ -18,6 +18,8 @@ export const PACCHETTI: Readonly<Record<IdPacchetto, { versione: string; descriz
   mitex: { versione: "0.2.7", descrizione: "formule scritte in LaTeX" },
   equate: { versione: "0.3.3", descrizione: "numerazione per riga e formule su più pagine" },
   lilaq: { versione: "0.6.0", descrizione: "grafici scientifici (strumento Grafici)" },
+  cetz: { versione: "0.5.2", descrizione: "disegno e grafici liberi (strumento Grafici, motore CeTZ)" },
+  "cetz-plot": { versione: "0.1.4", descrizione: "grafici di dati per CeTZ (strumento Grafici)" },
   // Pacchetto dell'utente INCORPORATO nell'eseguibile (`@local`, nessun download): vedi pacchetti_incorporati.rs.
   "gantt-newgen": { versione: "0.1.0", descrizione: "diagrammi di Gantt (strumento Gantt; incorporato, LGPL-3.0)" },
 };
@@ -29,6 +31,12 @@ export function rigaImport(id: IdPacchetto): string {
   }
   if (id === "lilaq") {
     return `#import "@preview/lilaq:${PACCHETTI.lilaq.versione}" as lq`;
+  }
+  if (id === "cetz") {
+    return `#import "@preview/cetz:${PACCHETTI.cetz.versione}"`;
+  }
+  if (id === "cetz-plot") {
+    return `#import "@preview/cetz-plot:${PACCHETTI["cetz-plot"].versione}": plot`;
   }
   if (id === "gantt-newgen") {
     return `#import "@local/gantt-newgen:${PACCHETTI["gantt-newgen"].versione}": gantt`;

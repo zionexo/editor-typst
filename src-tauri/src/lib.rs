@@ -1533,6 +1533,25 @@ async fn anteprima_markdown(
     .map_err(|e| vec![format!("Anteprima Markdown interrotta: {e}")])
 }
 
+/// Apre una nuova finestra avviando un'altra istanza dell'app.
+///
+/// Ogni finestra è un processo separato, con World e osservatore propri;
+/// `impostazioni.json`, cronologia e `crash.log` restano condivisi su disco.
+/// Il processo figlio non viene atteso: il `Child` è scartato dopo lo `spawn`.
+///
+/// # Errori
+/// `Err(String)` (messaggio italiano) se non si trova l'eseguibile corrente
+/// o se l'avvio del processo fallisce.
+#[tauri::command]
+fn nuova_finestra() -> Result<(), String> {
+    let exe = std::env::current_exe()
+        .map_err(|e| format!("Impossibile avviare una nuova finestra: {e}"))?;
+    std::process::Command::new(exe)
+        .spawn()
+        .map(drop)
+        .map_err(|e| format!("Impossibile avviare una nuova finestra: {e}"))
+}
+
 /// Installa il panic hook che scrive `<config_dir>/typster/crash.log`.
 ///
 /// Con `panic = "abort"` e sottosistema `windows` un panic non lascia altra
@@ -1664,6 +1683,7 @@ pub fn run() {
             converti_md_a_typst,
             converti_typst_a_md,
             anteprima_markdown,
+            nuova_finestra,
             osservatore::osserva_documento,
             osservatore::invalida_risorse,
             osservatore::riconosci_disco,

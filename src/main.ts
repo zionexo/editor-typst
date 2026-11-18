@@ -1016,6 +1016,10 @@ btnNuovo.addEventListener("click", (): void => {
 btnApri.addEventListener("click", (): void => void gestoreFile.apri());
 btnApriCartella.addEventListener("click", (): void => void gestoreFile.apriCartella());
 btnSalva.addEventListener("click", (): void => void gestoreFile.salva());
+elemento<HTMLButtonElement>("btn-salva-con-nome").addEventListener(
+  "click",
+  (): void => void gestoreFile.salvaConNome(),
+);
 btnEsporta.addEventListener("click", (): void => void esportaConFeedback("pdf"));
 btnStampa.addEventListener("click", (): void => void stampaDocumento());
 elemento<HTMLButtonElement>("avvisi-conversione-chiudi").addEventListener("click", (): void => {
@@ -1086,6 +1090,13 @@ registro.registra({
   },
 });
 registro.registra({
+  id: "file.nuovaFinestra",
+  titolo: "Nuova finestra",
+  scorciatoie: ["Mod+Shift+N"],
+  // Avvia un'altra istanza di Typster (processo separato, World proprio).
+  esegui: () => invoke("nuova_finestra"),
+});
+registro.registra({
   id: "strumenti.modelli",
   titolo: "Nuovo da modello…",
   esegui: () => {
@@ -1110,6 +1121,12 @@ registro.registra({
   titolo: "Salva",
   scorciatoie: ["Mod+S"],
   esegui: () => gestoreFile.salva(),
+});
+registro.registra({
+  id: "file.salvaConNome",
+  titolo: "Salva con nome…",
+  scorciatoie: ["Mod+Shift+S"],
+  esegui: () => gestoreFile.salvaConNome(),
 });
 registro.registra({
   id: "file.cronologia",
@@ -1338,6 +1355,7 @@ for (const [id, descrizione, comando] of [
   ["btn-apri", "Apri un file .typ o .md", "file.apri"],
   ["btn-apri-cartella", "Apri una cartella-progetto", "file.apriCartella"],
   ["btn-salva", "Salva il documento", "file.salva"],
+  ["btn-salva-con-nome", "Salva con nome", "file.salvaConNome"],
 ] as const) {
   const sc = registro.ottieni(comando)?.scorciatoie?.[0];
   if (sc !== undefined) {
