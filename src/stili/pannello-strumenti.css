@@ -80,6 +80,7 @@ textarea.str-input { resize: vertical; min-height: 4.5em; }
 
 /* ---- Vista «Pagina» ---- */
 .str-due { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.str-due > * { min-width: 0; } /* un menu con un testo lungo non deve allargare la griglia oltre il pannello */
 .str-seg { display: flex; border: 1px solid var(--rilievo); border-radius: 5px; overflow: hidden; }
 .str-seg-voce { flex: 1; padding: 4px 6px; background: var(--sfondo); color: var(--testo); border: 0; border-right: 1px solid var(--bordo); cursor: pointer; font-size: 0.8rem; }
 .str-seg-voce:last-child { border-right: 0; }

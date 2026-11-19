@@ -11,6 +11,7 @@
 //!   hover, jump sorgente↔anteprima).
 //! - [`esporta`]: opzioni e logica pura dell'export (intervalli di pagine,
 //!   standard PDF/A, limiti PNG, nomi dei file per pagina).
+//! - [`immagini`]: salvataggio in `img/` di un'immagine incollata dagli appunti.
 //! - [`indice`]: indice dei titoli del documento compilato (F5-020).
 //! - [`albero`]: albero dei file della cartella-progetto, sola consultazione (F5-021).
 //! - [`cronologia`]: cronologia locale delle versioni di un documento (F5-013).
@@ -37,6 +38,7 @@ pub mod conversione;
 pub mod cronologia;
 pub mod esporta;
 pub mod esterni;
+pub mod immagini;
 pub mod indice;
 mod markdown;
 pub mod modelli;

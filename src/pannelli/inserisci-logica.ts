@@ -82,6 +82,31 @@ export function percorsoImmagine(percorso: string, cartellaDocumento: string | n
   return { codice: p };
 }
 
+const ESTENSIONI_IMMAGINE = new Map([
+  ["image/png", "png"],
+  ["image/jpeg", "jpg"],
+  ["image/gif", "gif"],
+  ["image/webp", "webp"],
+]);
+
+/** Tetto di un'immagine incollata: lo stesso del backend (`IMMAGINE_MAX_BYTE` in `typst-core`). */
+export const IMMAGINE_MAX_BYTE = 10 * 1024 * 1024;
+
+/**
+ * Nome del file per un'immagine incollata, `img-AAAAMMGG-OOMMSS.<est>` (ora locale), oppure
+ * `null` se il tipo MIME non è tra quelli che Typst legge e che il backend accetta.
+ */
+export function nomeImmagineIncollata(quando: Date, mime: string): string | null {
+  const estensione = ESTENSIONI_IMMAGINE.get(mime.toLowerCase());
+  if (estensione === undefined) {
+    return null;
+  }
+  const d = (n: number, cifre = 2): string => String(n).padStart(cifre, "0");
+  const data = `${d(quando.getFullYear(), 4)}${d(quando.getMonth() + 1)}${d(quando.getDate())}`;
+  const ora = `${d(quando.getHours())}${d(quando.getMinutes())}${d(quando.getSeconds())}`;
+  return `img-${data}-${ora}.${estensione}`;
+}
+
 /** `#figure(image(...), caption: [...]) <etichetta>`, oppure il motivo per cui non si può generare. */
 export function esitoFigura(
   percorso: string,

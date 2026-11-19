@@ -16,7 +16,7 @@ const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url),
 const lock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8")) as Lock;
 
 // Dipendenze importate direttamente da `src/` (non solo transitive): devono essere dichiarate.
-const ATTESE = ["@codemirror/language", "@lezer/highlight"];
+const ATTESE = ["@codemirror/language", "@lezer/highlight", "@codemirror/search"];
 
 /** `versione` soddisfa `^base` (stesso major, >= base) per versioni x.y.z. */
 function soddisfaCaret(versione: string, intervallo: string): boolean {

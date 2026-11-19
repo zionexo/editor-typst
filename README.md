@@ -26,7 +26,8 @@ layout e la tipografia sono quelle di Typst, e l'intero ecosistema di pacchetti 
   salvando i propri), *Pagina* (formato, margini, intestazione, numerazione), *Inserisci*
   (tabella, figura, equazione, riferimento, nota), *Equazioni* (strutture matematiche,
   pacchetti physica, mitex ed equate), *Grafici* (tabella incollata → grafico con lilaq o CeTZ) e
-  *Gantt* (cronoprogrammi con attività, dipendenze e pietre miliari, con il pacchetto gantt-newgen, incorporato: funziona anche senza rete).
+  *Gantt* (cronoprogrammi con attività, dipendenze e pietre miliari, con il pacchetto gantt-newgen, incorporato: funziona anche senza rete) e
+  *Diagramma di flusso* (nodi e frecce con rami paralleli e intersezioni, disposti da Graphviz tramite il pacchetto diagraph: serve la rete la prima volta).
 - **Esportazione** in PDF (anche PDF/A), PNG, SVG, testo semplice, HTML, LaTeX e Markdown.
 - **Stampa** diretta del documento formattato (pulsante *Stampa*), con la
   finestra di stampa di Windows e «Salva come PDF».

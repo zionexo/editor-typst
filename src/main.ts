@@ -71,6 +71,7 @@ import { creaGestorePacchetti, ID_PANNELLO_PACCHETTI, type GestorePacchetti } fr
 import { creaBarraLaterale, type BarraLaterale } from "./barra-laterale";
 import { creaPannelloStrumenti, type PannelloStrumenti, type RisultatoModello } from "./pannelli/strumenti";
 import type { ModelloInfo } from "./pannelli/strumenti-logica";
+import { generaFigura, IMMAGINE_MAX_BYTE, nomeImmagineIncollata } from "./pannelli/inserisci-logica";
 import { creaPannelloIndice, type PannelloIndice } from "./pannelli/indice";
 import { creaPannelloFile, ID_PANNELLO_FILE, type PannelloFile } from "./pannelli/file";
 import type { AlberoFile } from "./pannelli/file-logica";
@@ -318,6 +319,7 @@ const editor: Editor = creaEditor(
     pannelloIndice?.cursoreCambiato(offset);
     pannelloStrumenti?.aggiorna();
   },
+  (immagine) => void incollaImmagine(immagine),
 );
 
 // Le sostituzioni in blocco del documento (Nuovo/apri/ricarica/ripristina/converti)
@@ -495,10 +497,7 @@ pannelloStrumenti = creaPannelloStrumenti({
   selezione: () => editor.selezione(),
   sostituisci: (cambi, selezione) => editor.sostituisciIntervalli(cambi, selezione),
   conferma: (messaggio) => ask(messaggio, { title: "Modelli", kind: "warning" }),
-  cartellaDocumento: () => {
-    const p = gestoreFile.stato().percorso;
-    return p === null ? null : p.replace(/[\\/][^\\/]*$/, "");
-  },
+  cartellaDocumento,
   onAvviso: (msg) => {
     spanStato.textContent = msg;
   },
@@ -513,6 +512,83 @@ barra.registra(pannelloStrumenti);
 const dialogoEsporta: DialogoEsporta = creaDialogoEsporta(editor);
 
 // ---- Funzioni principali ----
+
+/** Cartella del documento aperto, o `null` se non è ancora stato salvato. */
+function cartellaDocumento(): string | null {
+  const p = gestoreFile.stato().percorso;
+  if (p === null) {
+    return null;
+  }
+  const cartella = p.replace(/[\\/][^\\/]*$/, "");
+  // Radice di un'unità: «C:» da solo è relativo alla cartella corrente del processo, non alla radice.
+  return /^[A-Za-z]:$/.test(cartella) ? `${cartella}\\` : cartella;
+}
+
+/** Vero mentre un'immagine incollata è in salvataggio (un `Ctrl+V` tenuto premuto ne genera molte). */
+let incollaInCorso = false;
+
+/**
+ * Salva un'immagine degli appunti in `img/` accanto al documento e inserisce al cursore
+ * il `#figure` che la usa. Gli errori vanno nella barra di stato, non bloccano l'editor.
+ */
+async function incollaImmagine(immagine: Blob): Promise<void> {
+  if (incollaInCorso) {
+    return;
+  }
+  const percorsoDocumento = gestoreFile.stato().percorso;
+  const cartella = cartellaDocumento();
+  if (tipoDocumento !== "typst") {
+    spanStato.textContent = "Incolla immagine: disponibile solo nei documenti Typst";
+    return;
+  }
+  if (cartella === null) {
+    spanStato.textContent = "Salva prima il documento: l'immagine va nella sua cartella";
+    return;
+  }
+  const nome = nomeImmagineIncollata(new Date(), immagine.type);
+  if (nome === null) {
+    spanStato.textContent = `Formato immagine non supportato (${immagine.type || "sconosciuto"}): usa PNG, JPEG, GIF o WebP`;
+    return;
+  }
+  // Controllo prima di leggere i byte: un'immagine enorme non deve bloccare la WebView.
+  if (immagine.size === 0 || immagine.size > IMMAGINE_MAX_BYTE) {
+    spanStato.textContent = `Incolla immagine: l'immagine deve pesare da 1 byte a ${IMMAGINE_MAX_BYTE / (1024 * 1024)} MiB`;
+    return;
+  }
+  incollaInCorso = true;
+  try {
+    const byte = Array.from(new Uint8Array(await immagine.arrayBuffer()));
+    const percorso = await invoke<string>("salva_immagine", { cartella, nome, byte });
+    const codice = generaFigura(percorso, "", "");
+    if (gestoreFile.stato().percorso !== percorsoDocumento || codice === null) {
+      // Nel frattempo si è aperto un altro documento: il percorso relativo non vale più.
+      spanStato.textContent = `Immagine salvata in ${percorso}, ma non inserita: il documento è cambiato`;
+      return;
+    }
+    editor.inserisci(codice);
+    spanStato.textContent = `Immagine salvata in ${percorso}`;
+  } catch (e) {
+    spanStato.textContent = `Incolla immagine: ${String(e)}`;
+  } finally {
+    incollaInCorso = false;
+  }
+}
+
+/** Comando «Incolla immagine»: legge l'immagine dagli appunti di sistema (se ce n'è una). */
+async function incollaImmagineDagliAppunti(): Promise<void> {
+  try {
+    for (const voce of await navigator.clipboard.read()) {
+      const tipo = voce.types.find((t) => t.startsWith("image/"));
+      if (tipo !== undefined) {
+        await incollaImmagine(await voce.getType(tipo));
+        return;
+      }
+    }
+    spanStato.textContent = "Negli appunti non c'è nessuna immagine";
+  } catch (e) {
+    spanStato.textContent = `Incolla immagine: impossibile leggere gli appunti (${String(e)})`;
+  }
+}
 
 /**
  * Reagisce a ogni modifica del documento da parte dell'utente: marca il file
@@ -1020,6 +1096,7 @@ elemento<HTMLButtonElement>("btn-salva-con-nome").addEventListener(
   "click",
   (): void => void gestoreFile.salvaConNome(),
 );
+elemento<HTMLButtonElement>("btn-cerca").addEventListener("click", (): void => editor.apriRicerca());
 btnEsporta.addEventListener("click", (): void => void esportaConFeedback("pdf"));
 btnStampa.addEventListener("click", (): void => void stampaDocumento());
 elemento<HTMLButtonElement>("avvisi-conversione-chiudi").addEventListener("click", (): void => {
@@ -1095,6 +1172,18 @@ registro.registra({
   scorciatoie: ["Mod+Shift+N"],
   // Avvia un'altra istanza di Typster (processo separato, World proprio).
   esegui: () => invoke("nuova_finestra"),
+});
+registro.registra({
+  id: "modifica.cerca",
+  titolo: "Cerca nel documento",
+  // Nessuna scorciatoia nostra: Ctrl+F è già di CodeMirror (riservata, vedi pannelli.check.ts).
+  esegui: () => editor.apriRicerca(),
+});
+registro.registra({
+  id: "modifica.incollaImmagine",
+  titolo: "Incolla immagine",
+  // Nessuna scorciatoia nostra: Ctrl+V è dell'editor (riservata) e già incolla le immagini.
+  esegui: () => incollaImmagineDagliAppunti(),
 });
 registro.registra({
   id: "strumenti.modelli",

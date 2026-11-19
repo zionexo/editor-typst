@@ -53,6 +53,21 @@ All'avvio trovi un documento di esempio. Modificalo e guarda l'anteprima cambiar
   colori).
 - **Palette comandi** (`Ctrl+P`): scrivi per cercare qualsiasi comando, incluse le
   esportazioni e i cambi di tema.
+- **Cerca nel documento** (pulsante **Cerca** nella barra, o `Ctrl+F`): apre in alto
+  nell'editor il pannello di ricerca. Scrivi nel campo e premi `Invio` per l'occorrenza
+  successiva (`Maiusc+Invio` per la precedente); `Esc` lo chiude. Le caselle scelgono
+  maiuscole/minuscole, parola intera ed espressione regolare; nel secondo campo puoi
+  **sostituire** un'occorrenza o tutte. Cerca solo nel testo del documento, non
+  nell'anteprima.
+- **Incolla immagine** (`Ctrl+V`, oppure «Incolla immagine» nella palette): se negli appunti
+  c'è un'immagine (per esempio uno screenshot, o un file PNG/JPEG copiato da Esplora risorse),
+  Typster la salva come `img/img-AAAAMMGG-OOMMSS.<est>` (l'estensione è quella del formato)
+  nella cartella del documento e scrive nel punto del cursore una `#figure` che la usa.
+  Aggiungi tu la didascalia. Servono un documento Typst **già salvato** (Typst legge solo i
+  file della sua cartella) e un'immagine PNG, JPEG, GIF o WebP fino a 10 MiB. Se negli appunti
+  c'è anche del testo (copia da Word o da una pagina web), `Ctrl+V` incolla il testo. Due
+  immagini incollate nello stesso secondo hanno lo stesso nome: la seconda dà l'errore
+  «esiste già» nella barra di stato e non sostituisce la prima.
 
 ## 3. Scrivere
 
@@ -204,8 +219,8 @@ Per comporre formule senza ricordare la sintassi.
 4. **Inserisci nel documento**: i pacchetti scelti si scaricano alla prima compilazione.
 
 Limiti della versione attuale: al massimo 2000 righe e 6 serie; con le barre e più serie,
-Lilaq le sovrappone (meglio linee o punti, oppure la libreria CeTZ). Grafici di una funzione e diagrammi di
-flusso non sono ancora disponibili.
+Lilaq le sovrappone (meglio linee o punti, oppure la libreria CeTZ). I grafici di una funzione non sono
+ancora disponibili.
 
 ### 6.6 Gantt
 
@@ -232,6 +247,39 @@ Il pacchetto *gantt-newgen* è incorporato nell'eseguibile (`@local/gantt-newgen
 serve la rete né l'installazione. È distribuito con licenza LGPL-3.0; il sorgente è nel repository
 (`crates/typst-core/pacchetti/gantt-newgen`). Se installi una tua versione nella cartella dei
 pacchetti `@local` di Typst, ha la precedenza su quella incorporata.
+
+### 6.7 Diagramma di flusso
+
+Per diagrammi di flusso anche complessi, con intersezioni e rami paralleli. Disegna **Graphviz**
+(pacchetto *diagraph*): tu indichi nodi e frecce, la disposizione la decide lui e cerca di evitare
+le intersezioni.
+
+1. **Nodi:** per ognuno scrivi il **testo** e scegli la **forma** (processo, inizio/fine,
+   decisione, input/output, sottoprocesso) e un **colore** di riempimento. Facoltativi:
+   - **Riquadro:** i nodi con lo stesso titolo finiscono in un riquadro tratteggiato con quel titolo.
+   - **Stesso livello:** i nodi con lo stesso valore stanno sulla stessa riga (rami paralleli; con
+     la direzione orizzontale, sulla stessa colonna). Il confronto distingue maiuscole e minuscole
+     («evasione» e «Evasione» sono livelli diversi) e un livello con un solo nodo non ha effetto.
+     Lo stesso vale per i titoli dei riquadri.
+   Un nodo non può avere **riquadro e livello insieme** (Graphviz non disegnerebbe il riquadro).
+   **Rimuovi** toglie un nodo e le frecce che lo toccano.
+2. **Archi (frecce):** scegli il nodo di **partenza** e quello di **arrivo**, un'**etichetta**
+   (per esempio «Sì» e «No» sulle uscite di una decisione) e, se vuoi, il **tratteggio**. Per un
+   ciclo («riprova») basta un arco verso un nodo precedente; un arco da un nodo a se stesso è ammesso.
+3. **Diagramma:** la **direzione** (dall'alto in basso o da sinistra a destra) e la **larghezza** in
+   % della pagina; se la lasci vuota il diagramma ha la sua dimensione naturale. Un diagramma
+   molto alto può uscire dalla pagina: scegli la direzione orizzontale o riduci la larghezza.
+4. **Inserisci nel documento.** **Carica un esempio** riempie la scheda con un ordine che si
+   divide in tre rami paralleli e si ricongiunge, con un ciclo di correzione.
+
+Il codice inserito è **DOT di Graphviz** dentro `#diagraph.raw-render(...)`: puoi rifinirlo a mano
+nell'editor (altre forme, colori, `rank=same`, riquadri annidati). I testi sono sempre resi come
+testo normale (`math-mode: "text"`): `x_1` o `Costo #1` non diventano formule. Typster aggiunge
+`#import "@preview/diagraph:0.3.8"` in cima, se non c'è già come modulo (un import con
+`: *` o `as …` non basta, perché il codice usa `diagraph.raw-render`). Limiti: al massimo 80 nodi e
+200 archi dalla scheda; la prima volta Typster scarica il pacchetto da Typst Universe, quindi serve
+internet; il diagramma compare nel PDF, in SVG e in PNG ma **non** nelle esportazioni Markdown,
+HTML e LaTeX.
 
 ## 7. Esportare
 
@@ -292,6 +340,8 @@ Le scelte si salvano e si applicano subito, senza riavviare.
 | Palette comandi | `Ctrl+P` (o `Ctrl+Maiusc+P`) |
 | Nuovo documento | `Ctrl+N` |
 | Nuova finestra | `Ctrl+Maiusc+N` |
+| Cerca nel documento | `Ctrl+F` |
+| Incolla immagine | `Ctrl+V` (immagine negli appunti) |
 | Apri file | `Ctrl+O` |
 | Apri cartella-progetto | `Ctrl+Maiusc+O` |
 | Salva | `Ctrl+S` |

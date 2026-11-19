@@ -1,7 +1,7 @@
 /**
  * strumenti.ts — Pannello «Strumenti» della barra laterale.
  *
- * Una lista di strumenti (Modelli, Pagina, Inserisci, Equazioni, Grafici e Gantt) e, scelto uno strumento, il suo pannello con «‹ Strumenti» per
+ * Una lista di strumenti (Modelli, Pagina, Inserisci, Equazioni, Grafici, Gantt e Diagramma di flusso) e, scelto uno strumento, il suo pannello con «‹ Strumenti» per
  * tornare indietro. Vista **Modelli**: si sceglie un modello, si compila il
  * modulo e si crea un documento non salvato. Vista **Salva come modello**: si
  * trasformano in campi le parti del documento aperto che cambiano ogni volta.
@@ -16,6 +16,7 @@
 import type { Pannello } from "../barra-laterale";
 import { campoForm, el, pulsante } from "./dom";
 import { creaVistaEquazioni } from "./equazioni-vista";
+import { creaVistaFlusso } from "./flusso-vista";
 import { creaVistaGantt } from "./gantt-vista";
 import { creaVistaGrafici } from "./grafici-vista";
 import { creaVistaInserisci } from "./inserisci-vista";
@@ -101,7 +102,7 @@ export interface PannelloStrumenti extends Pannello {
   apriModelli(): void;
 }
 
-type Vista = "lista" | "modelli" | "salva" | "pagina" | "inserisci" | "equazioni" | "grafici" | "gantt";
+type Vista = "lista" | "modelli" | "salva" | "pagina" | "inserisci" | "equazioni" | "grafici" | "gantt" | "flusso";
 
 /** Messaggio di un errore qualsiasi (Tauri restituisce stringhe). */
 function testoErrore(e: unknown): string {
@@ -141,6 +142,16 @@ export function creaPannelloStrumenti(opz: OpzioniStrumenti): PannelloStrumenti 
   });
 
   const ganttVista = creaVistaGantt({
+    testoEditor: opz.testoEditor,
+    selezione: opz.selezione,
+    sostituisci: opz.sostituisci,
+    onAvviso: opz.onAvviso,
+    conferma: opz.conferma,
+    indietro: () => indietro("Strumenti", "lista"),
+    ridisegna: (fuocoSu) => disegna(fuocoSu),
+  });
+
+  const flussoVista = creaVistaFlusso({
     testoEditor: opz.testoEditor,
     selezione: opz.selezione,
     sostituisci: opz.sostituisci,
@@ -227,6 +238,7 @@ export function creaPannelloStrumenti(opz: OpzioniStrumenti): PannelloStrumenti 
       voce("+", "Inserisci", "Tabella, figura, equazione, riferimento, nota", () => vai("inserisci")),
       voce("↗", "Grafici", "Linee, punti e barre da una tabella", () => vai("grafici")),
       voce("▤", "Gantt", "Attività, dipendenze e pietre miliari", () => vai("gantt")),
+      voce("◇", "Diagramma di flusso", "Nodi, frecce, rami paralleli (Graphviz)", () => vai("flusso")),
       voce("∑", "Equazioni", "Strutture, pacchetti, numerazione", () => {
         equazioniVista.carica();
         vai("equazioni");
@@ -597,7 +609,9 @@ export function creaPannelloStrumenti(opz: OpzioniStrumenti): PannelloStrumenti 
                   ? graficiVista.elementi()
                   : vista === "gantt"
                     ? ganttVista.elementi()
-                    : vistaSalva();
+                    : vista === "flusso"
+                      ? flussoVista.elementi()
+                      : vistaSalva();
     radice.replaceChildren(...parti);
     if (chiave !== null) {
       const nuovo = radice.querySelector<HTMLElement>(chiave);

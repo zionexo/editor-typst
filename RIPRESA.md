@@ -5,7 +5,7 @@
 > data, non leggerlo tutto). Si sovrascrive a ogni aggiornamento. Leggilo prima
 > di `PROGETTO.md`.
 
-**Ultimo aggiornamento:** 2026-11-17. **Ciclo di vita:** il progetto non ha
+**Ultimo aggiornamento:** 2026-11-19. **Ciclo di vita:** il progetto non ha
 il campo `Ciclo di vita`; di fatto è in **develop** dal 2026-09-29. Lo stato per fase è nelle note «Stato:» di `PIANO.md`.
 
 ## Leggi in questo ordine, se riprendi da zero
@@ -47,26 +47,29 @@ provato sull'exe di produzione: help in linea, Modelli, Pagina («funziona»);
 
 ## Verifica rapida che tutto sia ancora come descritto
 
-Misurata il **2026-11-17** (PowerShell; prima `. ...\code_tools\rust_bundle\activate.ps1`
+Misurata il **2026-11-19** (PowerShell; prima `. ...\code_tools\rust_bundle\activate.ps1`
 e `$env:CARGO_TARGET_DIR="C:\Users\<utente>\et_target"`):
 
 ```
-cargo test -p typst-core -p typster                                   # misurato: 537 passed (2 ignored) + 17 + 8 (3 ignored) + 4 + 6, 0 failed
-cargo test -p typst-core --test inserisci_snippet -- --ignored        # NON rimisurato il 2026-11-17 (richiede la RETE: lilaq, physica, mitex, equate)
+cargo test -p typst-core -p typster                                   # misurato: 549 passed (2 ignored) + 17 + 8 (4 ignored) + 4 + 6, 0 failed
+cargo test -p typst-core --test inserisci_snippet flusso_diagraph_compila -- --ignored   # misurato 2026-11-19: ok (RETE: scarica diagraph)
+cargo test -p typst-core --test inserisci_snippet -- --ignored        # gli altri NON rimisurati (RETE: lilaq, physica, mitex, equate, cetz)
 cargo clippy -p typst-core -p typster --all-targets -- -D warnings    # misurato: exit 0
 cargo fmt --check -p typst-core -p typster                            # misurato: exit 0
 npm.cmd run typecheck                                                 # misurato: exit 0
-npm.cmd run check                                                     # misurato: exit 0, 26 righe «OK»
-npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in 6 min 42 s
+npm.cmd run check                                                     # misurato: exit 0, 27 righe «OK»
+npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in 9 min 05 s
 ```
 
-Ultimo build di produzione **2026-11-17 18:29**, versione 0.1.1 (aggiunge **Nuova finestra**, vedi sotto):
-`typster.exe` 41.768.448 byte, SHA-256 `0947C08AAE5FF45E1A71DEA295D97A80C3AFDA0672A59859544F78CAB16ED872`,
-con `WebView2Loader.dll` (160.320 byte). Copie in **`dist\`** (exe + DLL, decisione dell'utente
-2026-11-17: `dist\` è la cartella della release di produzione) e in `C:\Users\<utente>\et_target\release\`.
-`dist\` è ignorata da git. `release\` (exe, DLL, zip `Typster-0.1.1-windows-x64.zip`, `SHA256SUMS.txt`) è stata
-aggiornata il 2026-11-18 con **questo stesso exe** (stesso SHA-256): il nome 0.1.1 ora contiene un exe diverso da
-quello del 2026-10-27 (versione non incrementata). Nessun `git push` fatto.
+Ultimo build di produzione **2026-11-19 17:49**, versione 0.1.1 (aggiunge **Cerca**, **Incolla immagine** e
+**Diagramma di flusso**, vedi sotto): `typster.exe` 41.780.736 byte, SHA-256
+`2ACA21B18725156633B7C2D3F0562A9689E15517241066E8AC3374EC54A1863F`, con `WebView2Loader.dll` (160.320 byte,
+invariata). Copie in **`dist\`** (exe + DLL, decisione dell'utente 2026-11-17: `dist\` è la cartella della
+release di produzione) e in `C:\Users\<utente>\et_target\release\`. `dist\` è ignorata da git.
+**`release\` è INDIETRO**: contiene ancora l'exe del 2026-11-17 (SHA-256 `0947C08A…`, senza Cerca, Incolla
+immagine e Diagramma di flusso), zip `Typster-0.1.1-windows-x64.zip` e `SHA256SUMS.txt` compresi. Si
+aggiorna solo se l'utente lo chiede (il nome 0.1.1 contiene già exe diversi; versione non incrementata).
+Nessun `git push` fatto.
 Restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0, vecchi e da rigenerare.
 **Nuova finestra** (2026-11-17): `Ctrl+Maiusc+N` o palette «Nuova finestra» avvia **un altro processo**
 Typster (comando Rust `nuova_finestra` in `src-tauri/src/lib.rs`: `spawn` di `current_exe()`, senza attesa;
@@ -74,6 +77,22 @@ comando `file.nuovaFinestra` in `src/main.ts`). Ogni finestra ha World e osserva
 cronologia e `crash.log` sono condivisi su disco (impostazioni: vince l'ultimo salvataggio). Perché e limiti:
 `DECISIONI.md`, voce **2026-11-17**. Code-reviewer: nessun critico. **Provato dall'utente sull'exe: funziona.**
 Non verificato: `current_exe` + `spawn` dentro il pacchetto MSIX.
+**Cerca, Incolla immagine, Diagramma di flusso** (2026-11-18/19): tutte e tre **provate dall'utente nell'exe
+di produzione («funziona tutto»)**. Il perché e i limiti sono in `DECISIONI.md`, voci **2026-11-18** e **2026-11-19**.
+
+- **Cerca**: il pannello di `@codemirror/search` (già in `basicSetup`) reso visibile: pulsante «Cerca», comando
+  di palette, `search({ top: true })`, etichette italiane (`FRASI_RICERCA` in `editor.ts`). `@codemirror/search`
+  è ora dipendenza diretta.
+- **Incolla immagine** (`Ctrl+V` con un'immagine e senza testo negli appunti, o comando «Incolla immagine»):
+  salva `img/img-AAAAMMGG-OOMMSS.<est>` accanto al documento e inserisce un `#figure`. Core
+  `crates/typst-core/src/immagini.rs` (nome, firma, tetto 10 MiB, mai sovrascrive, scrittura atomica; 12 test),
+  comando Tauri `salva_immagine`; frontend in `main.ts` (`incollaImmagine`), gestore `paste` in `editor.ts`,
+  `nomeImmagineIncollata` in `inserisci-logica.ts`. Documento non salvato o Markdown: solo un messaggio.
+- **Diagramma di flusso** (scheda in Strumenti): pacchetto **`@preview/diagraph:0.3.8`** (Graphviz, plugin
+  WebAssembly), non fletchart (scartato: non pubblicato, non regge rami paralleli e intersezioni).
+  `flusso-logica.ts` + `flusso-vista.ts` + `flusso.check.ts`; genera DOT dentro `#diagraph.raw-render(…,
+  math-mode: "text")`; nodi (forma, colore, riquadro, livello) e archi. Serve la rete la prima volta; il
+  diagramma non compare nelle esportazioni Markdown/HTML/LaTeX. Test Rust `flusso_diagraph_compila` (`--ignored`).
 Versione 0.1.1 aggiornata in package.json, Cargo (core e guscio), tauri.conf.json, Package.appxmanifest
 (0.1.1.0), README, manuale, scheda Store.
 **Gantt** (2026-10-23): scheda del pannello Strumenti sul pacchetto dell'utente **gantt-newgen 0.1.0**
@@ -116,6 +135,17 @@ Se qualcosa non torna con questi numeri, **qualcosa è cambiato da allora**.
   **svuota** (exe e DLL compresi) e fallisce con EPERM se `dist\typster.exe` è aperto. Dal
   2026-11-17 è la cartella della release di produzione: dopo ogni build **ricopiare** exe e
   DLL da `et_target\release\`. Senza `activate.ps1` `cargo` non è nel PATH.
+- **Un `typster.exe` nascosto blocca la build** anche se l'utente non vede nessuna finestra (finestra
+  fuori schermo o senza titolo): `Get-Process typster` mostra il PID; prima di terminarlo serve il via
+  libera dell'utente (può avere testo non salvato).
+- **Provare un pacchetto Typst senza scrivere Rust**: `cargo run --release -p typst-core --example
+  prova_export -- <cartella> 1 doc.typ` compila i `.typ` con gli stessi percorsi dell'app e scrive PNG/PDF/SVG
+  in `<cartella>/export/` (è così che si è provato diagraph prima di progettare la scheda).
+- **Lo strumento Edit converte ` `/` ` in caratteri veri**: in una regex dentro un file `.ts` ha
+  rotto la sintassi (`Invalid regular expression: missing /`). Scrivere queste sequenze con uno script
+  (Python con `chr(92)`), poi verificare con `grep`.
+- **Una scheda su un pacchetto con plugin WASM**: il modo `auto` di `diagraph` tratta alcune etichette come
+  formule (`x_1`, `Costo #1`): serve `math-mode: "text"`.
 - **Prove GUI con Edge headless + CDP sono fragili**; il test decisivo è l'exe di
   produzione (B-005, CSP).
 - Una prova che non può fallire non prova nulla (un `|| true` in un check ne ha
@@ -130,8 +160,9 @@ Se qualcosa non torna con questi numeri, **qualcosa è cambiato da allora**.
    separato e restituisce l'immagine): serve alle Equazioni (anteprima della formula)
    e ai Grafici; va fatto **una volta sola**, con `c-rust-dev`. Costo alto: da fare
    a quota piena.
-3. **Grafici**, resto del piano: funzione `y = f(x)`, diagrammi di flusso (fletcher),
-   grafi (diagraph), CSV da file del progetto, barre raggruppate per più serie.
+3. **Grafici**, resto del piano: funzione `y = f(x)`, CSV da file del progetto, barre raggruppate per più
+   serie. (I diagrammi di flusso sono fatti, con diagraph: vedi sopra. Se serve il controllo esatto delle
+   posizioni dei nodi, l'alternativa valutata è `fletcher` 0.6.0 con coordinate: `DECISIONI.md`, 2026-11-19.)
 4. **Strumento «Scienza»** (unify/zero: numeri con unità), richiesto dall'utente.
 5. **Freccia accanto a «Nuovo»** con «Nuovo da modello…» (oggi solo da palette).
 6. Più avanti: frontespizio e indici, controlli sul documento (etichette senza

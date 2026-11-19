@@ -10,6 +10,7 @@ import {
   generaNota,
   generaRiferimento,
   generaTabella,
+  nomeImmagineIncollata,
   percorsoImmagine,
   stringaTypst,
 } from "./inserisci-logica.ts";
@@ -64,6 +65,15 @@ uguali(
 );
 
 uguali(stringaTypst('a"b'), '"a\\"b"', "virgolette nel percorso");
+
+// immagine incollata: nome da data locale e tipo MIME
+const QUANDO = new Date(2026, 10, 19, 5, 3, 9);
+uguali(nomeImmagineIncollata(QUANDO, "image/png"), "img-20261119-050309.png", "nome con zeri a sinistra");
+uguali(nomeImmagineIncollata(QUANDO, "image/jpeg"), "img-20261119-050309.jpg", "jpeg diventa jpg");
+uguali(nomeImmagineIncollata(QUANDO, "IMAGE/WEBP"), "img-20261119-050309.webp", "MIME senza maiuscole/minuscole");
+vero(nomeImmagineIncollata(QUANDO, "image/bmp") === null, "bmp non supportato");
+vero(nomeImmagineIncollata(QUANDO, "text/plain") === null, "non è un'immagine");
+vero(nomeImmagineIncollata(QUANDO, "constructor") === null, "membri di Object non sono tipi MIME");
 
 // equazione
 uguali(generaEquazione("x^2", false), "$x^2$", "in linea");

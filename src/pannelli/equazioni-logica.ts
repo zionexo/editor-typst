@@ -10,9 +10,9 @@ import type { Cambio } from "./strumenti-logica";
 
 // ---- Pacchetti ----
 
-export type IdPacchetto = "physica" | "mitex" | "equate" | "lilaq" | "cetz" | "cetz-plot" | "gantt-newgen";
+export type IdPacchetto = "physica" | "mitex" | "equate" | "lilaq" | "cetz" | "cetz-plot" | "gantt-newgen" | "diagraph";
 
-/** Versioni dall'indice di Typst Universe del 2026-10-16 (da riverificare). */
+/** Versioni dall'indice di Typst Universe del 2026-10-16 (da riverificare); `diagraph` aggiunto il 2026-11-19. */
 export const PACCHETTI: Readonly<Record<IdPacchetto, { versione: string; descrizione: string }>> = {
   physica: { versione: "0.9.8", descrizione: "derivate, differenziali, bra-ket, operatori vettoriali" },
   mitex: { versione: "0.2.7", descrizione: "formule scritte in LaTeX" },
@@ -22,6 +22,7 @@ export const PACCHETTI: Readonly<Record<IdPacchetto, { versione: string; descriz
   "cetz-plot": { versione: "0.1.4", descrizione: "grafici di dati per CeTZ (strumento Grafici)" },
   // Pacchetto dell'utente INCORPORATO nell'eseguibile (`@local`, nessun download): vedi pacchetti_incorporati.rs.
   "gantt-newgen": { versione: "0.1.0", descrizione: "diagrammi di Gantt (strumento Gantt; incorporato, LGPL-3.0)" },
+  diagraph: { versione: "0.3.8", descrizione: "diagrammi di flusso con Graphviz (strumento Diagramma di flusso; plugin WebAssembly)" },
 };
 
 /** Riga di import di un pacchetto (`#import "@preview/physica:0.9.8": *`). */
@@ -41,11 +42,18 @@ export function rigaImport(id: IdPacchetto): string {
   if (id === "gantt-newgen") {
     return `#import "@local/gantt-newgen:${PACCHETTI["gantt-newgen"].versione}": gantt`;
   }
+  if (id === "diagraph") {
+    return `#import "@preview/diagraph:${PACCHETTI.diagraph.versione}"`;
+  }
   return `#import "@preview/${id}:${PACCHETTI[id].versione}": *`;
 }
 
 /** `true` se il documento importa già il pacchetto (qualsiasi versione). */
 export function haImport(testo: string, id: IdPacchetto): boolean {
+  // `diagraph` si usa come `diagraph.raw-render`: conta solo l'import come modulo (non `: *`, `: render`, `as dg`).
+  if (id === "diagraph") {
+    return /@preview\/diagraph:[^"\r\n]*"[ \t]*(\r?\n|$)/.test(testo);
+  }
   // `gantt-newgen` è un pacchetto locale (incorporato), gli altri vengono da Typst Universe.
   const ns = id === "gantt-newgen" ? "local" : "preview";
   return new RegExp(`@${ns}/${id}[:"]`).test(testo);

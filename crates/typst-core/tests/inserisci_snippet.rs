@@ -218,6 +218,115 @@ In linea #mi(`x^2`) e vedi @eq:fisica.
     assert_eq!(pagine, 1);
 }
 
+/// Diagrammi di flusso generati dalla scheda «Diagramma di flusso»
+/// (`src/pannelli/flusso-logica.ts`) con `@preview/diagraph` (plugin WebAssembly Graphviz).
+/// Richiede la rete: stesso comando del test lilaq (`cargo test -p typst-core --test
+/// inserisci_snippet -- --ignored`). Le stringhe sono copie dell'output del generatore.
+/// Solo nei documenti di PROVA si aggiunge `fail-on: "warning",` accanto a `math-mode`:
+/// così un DOT sbagliato, che il pacchetto altrimenti nasconde con un riquadro rosso,
+/// fa fallire la compilazione. Il codice che genera l'app NON ha `fail-on`.
+#[test]
+#[ignore = "richiede la rete per scaricare diagraph"]
+fn flusso_diagraph_compila() {
+    let intestazione = "#import \"@preview/diagraph:0.3.8\"\n\n";
+    // Raw string con `##`: il codice contiene `"#` (colori come "#fecaca").
+    let documenti: [&str; 3] = [
+        // Esempio con `width: 80%`, rank=same, ciclo tratteggiato e accenti.
+        r##"#diagraph.raw-render(
+  ```dot
+  digraph {
+    rankdir=TB;
+    n1 [label="Inizio", shape=ellipse, style=filled, fillcolor="#fecaca"];
+    n2 [label="Ricevi l'ordine", shape=parallelogram, style=filled, fillcolor="#e9d5ff"];
+    n3 [label="Ordine valido?", shape=diamond, style=filled, fillcolor="#fed7aa"];
+    n4 [label="Segnala l'errore", shape=parallelogram, style=filled, fillcolor="#e9d5ff"];
+    n5 [label="Prepara la merce", shape=box];
+    n6 [label="Emetti la fattura", shape=box];
+    n7 [label="Controlla il pagamento", shape=box];
+    n8 [label="Spedisci", shape=box, peripheries=2, style=filled, fillcolor="#dbeafe"];
+    n9 [label="Fine", shape=ellipse, style=filled, fillcolor="#fecaca"];
+    n1 -> n2;
+    n2 -> n3;
+    n3 -> n4 [label="No"];
+    n4 -> n2 [label="correggi", style=dashed];
+    n3 -> n5 [label="Sì"];
+    n3 -> n6 [label="Sì"];
+    n3 -> n7 [label="Sì"];
+    n5 -> n8;
+    n6 -> n8;
+    n7 -> n8;
+    n8 -> n9;
+    { rank=same; n5; n6; n7; }
+  }
+  ```,
+  math-mode: "text",
+  width: 80%,
+)
+"##,
+        // Riquadri `cluster`, direzione LR, senza `width`.
+        r##"#diagraph.raw-render(
+  ```dot
+  digraph {
+    rankdir=LR;
+    n1 [label="Inizio", shape=ellipse, style=filled, fillcolor="#fecaca"];
+    n5 [label="Fine", shape=ellipse];
+    subgraph cluster_1 {
+      label="Fase 1"; style=dashed;
+      n2 [label="Leggi", shape=parallelogram];
+      n3 [label="Controlla?", shape=diamond];
+    }
+    subgraph cluster_2 {
+      label="Fase 2"; style=dashed;
+      n4 [label="Scrivi", shape=box, peripheries=2, style=filled, fillcolor="#dcfce7"];
+    }
+    n1 -> n2;
+    n2 -> n3;
+    n3 -> n4 [label="Sì"];
+    n3 -> n2 [label="No", style=dashed];
+    n4 -> n5;
+  }
+  ```,
+  math-mode: "text",
+)
+"##,
+        // Testi difficili: `x_1`, `a^2`, `Costo #1 ($x$)`, virgolette, backslash, `;`, `}`, `<b>`, `#`.
+        r##"#diagraph.raw-render(
+  ```dot
+  digraph {
+    rankdir=TB;
+    n1 [label="x_1 e a^2", shape=box];
+    n2 [label="Costo #1 ($x$)", shape=diamond];
+    n3 [label="Dì \"ciao\" \\ a; } {", shape=parallelogram, style=filled, fillcolor="#fef9c3"];
+    subgraph cluster_1 {
+      label="Fase \"A\" \\ 1"; style=dashed;
+      n4 [label="Fine <b>", shape=ellipse];
+    }
+    n1 -> n2 [label="x_1"];
+    n2 -> n3 [label="a\"b\\c", style=dashed];
+    n3 -> n4 [label="#; }"];
+  }
+  ```,
+  math-mode: "text",
+)
+"##,
+    ];
+    for (i, codice) in documenti.iter().enumerate() {
+        let codice = codice.replace(
+            "math-mode: \"text\",",
+            "math-mode: \"text\",\n  fail-on: \"warning\",",
+        );
+        assert!(
+            codice.contains("fail-on"),
+            "documento {}: manca math-mode",
+            i + 1
+        );
+        let doc = format!("{intestazione}{codice}");
+        let (pagine, errori) = compila(&doc);
+        assert!(errori.is_empty(), "documento {}: {errori:?}", i + 1);
+        assert_eq!(pagine, 1, "documento {}", i + 1);
+    }
+}
+
 /// Gantt generati dalla scheda «Gantt» (`src/pannelli/gantt-logica.ts`) con il pacchetto
 /// dell'utente **gantt-newgen**, incorporato nell'eseguibile come `@local/gantt-newgen`
 /// (`crates/typst-core/pacchetti/`): gira OFFLINE e senza installazione. Le stringhe sono copie

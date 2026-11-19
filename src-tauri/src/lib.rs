@@ -285,6 +285,37 @@ async fn salva_file(
     .map_err(|e| format!("Salvataggio del file interrotto: {e}"))?
 }
 
+/// Salva un'immagine incollata dagli appunti in `<cartella>/img/<nome>`.
+///
+/// Il frontend manda il nome e i byte dell'immagine; tutti i controlli (nome,
+/// estensione, firma del formato, tetto di dimensione, file già esistente) e la
+/// scrittura atomica sono in [`typst_core::immagini::salva_immagine_incollata`].
+/// L'I/O bloccante gira in `spawn_blocking`. **Non** passa dalla cronologia né
+/// dal registro delle scritture proprie: l'immagine non è il documento.
+///
+/// # Parametri
+/// - `cartella`: cartella del documento (deve esistere).
+/// - `nome`: nome file semplice con estensione `png`, `jpg`, `gif` o `webp`.
+/// - `byte`: contenuto dell'immagine.
+///
+/// Limite noto: `Vec<u8>` viaggia come array JSON di numeri, quindi pesa molto
+/// più dei byte veri. È accettabile perché il core rifiuta oltre
+/// [`typst_core::immagini::IMMAGINE_MAX_BYTE`] (10 MiB).
+///
+/// # Ritorno
+/// Percorso relativo con barra normale, es. `"img/img-20261119-153012.png"`.
+///
+/// # Errori
+/// `Err(String)` con un messaggio leggibile in italiano.
+#[tauri::command]
+async fn salva_immagine(cartella: String, nome: String, byte: Vec<u8>) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        typst_core::immagini::salva_immagine_incollata(Path::new(&cartella), &nome, &byte)
+    })
+    .await
+    .map_err(|e| format!("Salvataggio dell'immagine interrotto: {e}"))?
+}
+
 /// Compila il sorgente Typst fornito ed esporta il PDF risultante su disco.
 ///
 /// Aggiorna il World persistente con il sorgente corrente, lo compila ed
@@ -1658,6 +1689,7 @@ pub fn run() {
             albero_progetto,
             chiudi_progetto,
             salva_file,
+            salva_immagine,
             esporta_pdf,
             esporta_immagini,
             esporta_testo,

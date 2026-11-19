@@ -29,6 +29,7 @@ import { EditorState, EditorSelection, Compartment, type Extension } from "@code
 import { LanguageSupport } from "@codemirror/language";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { setDiagnostics, lintGutter, type Diagnostic } from "@codemirror/lint";
+import { search, openSearchPanel } from "@codemirror/search";
 import { markdown } from "@codemirror/lang-markdown";
 import { eseguiComando, type ComandoFormattazione } from "./formattazione";
 import { messaggioMarcatore, type DiagnosticoBase } from "./errori";
@@ -115,10 +116,36 @@ export interface Editor {
   impostaFocus(attiva: boolean): void;
   /** Modalità macchina da scrivere (F5-023): la riga del cursore resta a metà altezza. Testo e selezione restano intatti. */
   impostaMacchina(attiva: boolean): void;
+  /** Apre il pannello di ricerca e sostituzione (lo stesso di Ctrl+F) e dà il focus al campo. */
+  apriRicerca(): void;
 }
 
 /** Tema risolto dell'editor: "sistema" è risolto a monte (vedi aspetto.ts). */
 export type TemaEditor = "chiaro" | "scuro";
+
+/**
+ * Etichette italiane del pannello di ricerca di CodeMirror. Le chiavi sono le frasi
+ * inglesi di `@codemirror/search` (ne esistono solo queste); `$` è il segnaposto del numero.
+ */
+const FRASI_RICERCA: Record<string, string> = {
+  Find: "Cerca",
+  Replace: "Sostituisci",
+  next: "successivo",
+  previous: "precedente",
+  all: "tutti",
+  "match case": "maiuscole/minuscole",
+  regexp: "regex",
+  "by word": "parola intera",
+  replace: "sostituisci",
+  "replace all": "sostituisci tutto",
+  close: "chiudi",
+  "Go to line": "Vai alla riga",
+  go: "vai",
+  "current match": "occorrenza corrente",
+  "on line": "alla riga",
+  "replaced $ matches": "sostituite $ occorrenze",
+  "replaced match on line $": "occorrenza sostituita alla riga $",
+};
 
 /**
  * Crea l'editor CodeMirror dentro il container indicato.
@@ -129,6 +156,9 @@ export type TemaEditor = "chiaro" | "scuro";
  *                        decide il debounce e l'avvio della compilazione.
  * @param onCursore       invocata quando la selezione/cursore cambia (offset UTF-16
  *                        della testa), per la sincronizzazione con l'anteprima.
+ * @param onImmagine      invocata quando si incolla (Ctrl+V) un'immagine senza testo
+ *                        negli appunti (es. uno screenshot); l'incolla di testo resta quella di
+ *                        CodeMirror. Il chiamante salva il file e inserisce il codice.
  * @returns l'API [`Editor`] per interagire con l'istanza.
  */
 export function creaEditor(
@@ -136,6 +166,7 @@ export function creaEditor(
   valoreIniziale: string,
   onModifica: () => void,
   onCursore?: (offset: number) => void,
+  onImmagine?: (immagine: File) => void,
 ): Editor {
   // Compartment locale all'istanza (non di modulo): se in futuro si creassero
   // più editor — split-view, multi-tab — ognuno riconfigura il proprio linguaggio
@@ -174,6 +205,23 @@ export function creaEditor(
     doc: valoreIniziale,
     extensions: [
       basicSetup, // numeri riga, history, chiusura parentesi, auto-indent, ricerca, fold
+      search({ top: true }), // pannello di ricerca in alto (la ricerca stessa viene da basicSetup)
+      EditorState.phrases.of(FRASI_RICERCA),
+      EditorView.domEventHandlers({
+        paste: (evento) => {
+          const dati = evento.clipboardData;
+          // Solo immagine senza testo: con testo (es. copia da Word o da una pagina web) vince il testo.
+          if (!onImmagine || !dati || dati.getData("text/plain").trim() !== "") {
+            return false;
+          }
+          const immagine = [...dati.items].find((i) => i.kind === "file" && i.type.startsWith("image/"))?.getAsFile();
+          if (!immagine) {
+            return false;
+          }
+          onImmagine(immagine); // `true` fa già chiamare preventDefault a CodeMirror
+          return true;
+        },
+      }),
       tema.of(oneDark), // tema scuro all'avvio; aspetto.ts lo riallinea subito
       EditorView.lineWrapping, // a capo automatico per righe lunghe
       lintGutter(), // colonnina con i marcatori di errore/avviso accanto alle righe
@@ -266,6 +314,9 @@ export function creaEditor(
       view.dispatch({ changes: { from: s.da, to: s.a, insert: s.inserisci } });
     },
     focus: () => view.focus(),
+    apriRicerca: () => {
+      openSearchPanel(view);
+    },
     inserisci: (testo: string) => {
       // Sostituisce la selezione (o inserisce al cursore) col testo, via transazione.
       view.dispatch(view.state.replaceSelection(testo));
