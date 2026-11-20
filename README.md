@@ -8,8 +8,7 @@ Typster è un guscio sottile attorno al compilatore ufficiale di Typst: la resa,
 layout e la tipografia sono quelle di Typst, e l'intero ecosistema di pacchetti di
 [Typst Universe](https://typst.app/universe) è raggiungibile dall'interno dell'app.
 
-> Stato: **versione 0.2.1**, per Windows. L'app è in sviluppo attivo; vedi
-> [RIPRESA.md](RIPRESA.md) per lo stato dei lavori.
+> Stato: **versione 0.2.1**, per Windows. L'app è in sviluppo attivo.
 
 ## Cosa fa
 
@@ -81,9 +80,7 @@ crates/typst-core/   core in Rust (compilazione, esportazioni, conversioni, mode
 src-tauri/           guscio Tauri (comandi, finestra)
 src/                 frontend TypeScript (editor CodeMirror 6, anteprima, pannelli, strumenti)
 docs/                manuale dell'applicazione
-DECISIONI.md         registro delle decisioni di progetto e dei difetti noti
-PIANO.md, PROGETTO.md, SPEC-UNIFICATA.md   visione, specifiche e roadmap
-RIPRESA.md           stato corrente e prossimi passi
+release/             eseguibile, archivio zip e checksum
 NOTICE, licenses/    note e testi delle licenze di terze parti
 ```
 

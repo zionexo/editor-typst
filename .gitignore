@@ -24,3 +24,12 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+
+# === Documenti di lavoro (solo locali, non pubblicati: si pubblica solo README.md e docs/manuale.md) ===
+/DECISIONI.md
+/PIANO.md
+/PROGETTO.md
+/RIPRESA.md
+/SPEC-UNIFICATA.md
+/fase8.md
+/docs/store-scheda.md
