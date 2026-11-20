@@ -8,7 +8,7 @@ Typster è un guscio sottile attorno al compilatore ufficiale di Typst: la resa,
 layout e la tipografia sono quelle di Typst, e l'intero ecosistema di pacchetti di
 [Typst Universe](https://typst.app/universe) è raggiungibile dall'interno dell'app.
 
-> Stato: **versione 0.1.1**, per Windows. L'app è in sviluppo attivo; vedi
+> Stato: **versione 0.2.1**, per Windows. L'app è in sviluppo attivo; vedi
 > [RIPRESA.md](RIPRESA.md) per lo stato dei lavori.
 
 ## Cosa fa
@@ -38,7 +38,7 @@ Il manuale completo è in **[docs/manuale.md](docs/manuale.md)**.
 
 ## Installazione (Windows)
 
-1. Scarica l'archivio `Typster-0.1.1-windows-x64.zip` dalla pagina
+1. Scarica l'archivio `Typster-0.2.1-windows-x64.zip` dalla pagina
    **[Releases](../../releases)** del repository.
 2. Estrai **tutto** il contenuto in una cartella a tua scelta (l'eseguibile e
    `WebView2Loader.dll` devono stare nella stessa cartella).

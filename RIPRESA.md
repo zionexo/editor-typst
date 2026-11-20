@@ -61,15 +61,15 @@ npm.cmd run check                                                     # misurato
 npm.cmd run tauri build -- --no-bundle                                # misurato: exit 0 in 9 min 05 s
 ```
 
-Ultimo build di produzione **2026-11-19 17:49**, versione 0.1.1 (aggiunge **Cerca**, **Incolla immagine** e
-**Diagramma di flusso**, vedi sotto): `typster.exe` 41.780.736 byte, SHA-256
-`2ACA21B18725156633B7C2D3F0562A9689E15517241066E8AC3374EC54A1863F`, con `WebView2Loader.dll` (160.320 byte,
-invariata). Copie in **`dist\`** (exe + DLL, decisione dell'utente 2026-11-17: `dist\` è la cartella della
-release di produzione) e in `C:\Users\<utente>\et_target\release\`. `dist\` è ignorata da git.
-**`release\` è allineato** (2026-11-20, su richiesta dell'utente): `typster.exe` identico a quello di `dist\`
-(SHA-256 `2ACA21B1…863F`), `WebView2Loader.dll` invariata, `Typster-0.1.1-windows-x64.zip` rifatto con i due
-file e `SHA256SUMS.txt` rigenerato (verifica: `cd release; sha256sum -c SHA256SUMS.txt`). Il nome 0.1.1
-contiene ormai exe diversi: versione non incrementata. Nessun `git push` fatto.
+Ultimo build di produzione **2026-11-20 17:02**, versione **0.2.1** (include **Cerca**, **Incolla immagine** e
+**Diagramma di flusso**, vedi sotto; versione incorporata verificata: FileVersion 0.2.1): `typster.exe`
+41.778.176 byte, SHA-256 `0F6F7A142857D1F883A1CB3EDE275DEC316CB9D75FDF4BFC693FDFFEA591930B`, con
+`WebView2Loader.dll` (160.320 byte, invariata). Copie in **`dist\`** (exe + DLL, decisione dell'utente
+2026-11-17: `dist\` è la cartella della release di produzione) e in `C:\Users\<utente>\et_target\release\`.
+`dist\` è ignorata da git. Dopo il cambio di versione NON ho rieseguito test e smoke: il codice è lo stesso
+del build 2026-11-19 (provato dall'utente), cambia solo il numero.
+**`release\` è allineato a 0.2.1** (2026-11-20): `typster.exe` identico a `dist\`, `Typster-0.2.1-windows-x64.zip`
+(exe + DLL) e `SHA256SUMS.txt` (verifica: `cd release; sha256sum -c SHA256SUMS.txt`). Nessun `git push` fatto.
 Restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0, vecchi e da rigenerare.
 **Nuova finestra** (2026-11-17): `Ctrl+Maiusc+N` o palette «Nuova finestra» avvia **un altro processo**
 Typster (comando Rust `nuova_finestra` in `src-tauri/src/lib.rs`: `spawn` di `current_exe()`, senza attesa;
@@ -93,8 +93,9 @@ di produzione («funziona tutto»)**. Il perché e i limiti sono in `DECISIONI.m
   `flusso-logica.ts` + `flusso-vista.ts` + `flusso.check.ts`; genera DOT dentro `#diagraph.raw-render(…,
   math-mode: "text")`; nodi (forma, colore, riquadro, livello) e archi. Serve la rete la prima volta; il
   diagramma non compare nelle esportazioni Markdown/HTML/LaTeX. Test Rust `flusso_diagraph_compila` (`--ignored`).
-Versione 0.1.1 aggiornata in package.json, Cargo (core e guscio), tauri.conf.json, Package.appxmanifest
-(0.1.1.0), README, manuale, scheda Store.
+Versione 0.2.1 (2026-11-20) in package.json + lock, Cargo (core e guscio) + Cargo.lock, tauri.conf.json,
+Package.appxmanifest (0.2.1.0), README, manuale. La scheda Store (`docs/store-scheda.md`) resta a 0.1.1:
+descrive la versione pubblicata.
 **Gantt** (2026-10-23): scheda del pannello Strumenti sul pacchetto dell'utente **gantt-newgen 0.1.0**
 (LGPL-3.0), **incorporato nell'exe** come `@local/gantt-newgen:0.1.0` (offline; un pacchetto installato in
 `@local` ha la precedenza). Sorgente in `crates/typst-core/pacchetti/gantt-newgen/` (aggiornare con

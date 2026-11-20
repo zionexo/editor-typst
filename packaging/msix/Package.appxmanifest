@@ -13,7 +13,7 @@
   <Identity
     Name="Nexodux.Typster"
     Publisher="CN=Nexodux"
-    Version="0.1.1.0"
+    Version="0.2.1.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
