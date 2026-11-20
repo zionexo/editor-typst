@@ -167,18 +167,5 @@ pub fn invalida_cache() {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-    use chrono::TimeZone;
-
-    #[test]
-    fn riga_crash_e_una_sola_riga_con_ora_utc_e_posizione() {
-        let ora = chrono::Utc.with_ymd_and_hms(2026, 9, 30, 8, 5, 3).unwrap();
-        let riga = riga_crash(ora, "src/lib.rs:10:5", "prima\r\nseconda");
-        assert_eq!(
-            riga,
-            "2026-09-30T08:05:03Z [src/lib.rs:10:5] prima\\nseconda\n"
-        );
-        assert_eq!(riga.matches('\n').count(), 1, "una sola riga: {riga:?}");
-    }
-}
+#[path = "../tests/unit/lib.rs"]
+mod test;

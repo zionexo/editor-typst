@@ -33,3 +33,10 @@ Thumbs.db
 /SPEC-UNIFICATA.md
 /fase8.md
 /docs/store-scheda.md
+
+# === Test, impacchettamento e script di sviluppo (solo locali, non pubblicati) ===
+/crates/typst-core/tests/
+/src-tauri/tests/
+/packaging/
+/tools/
+*.check.ts

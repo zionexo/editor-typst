@@ -61,9 +61,7 @@ Servono Rust, Node.js (con npm) e, su Windows, una toolchain C per Tauri.
 
 ```
 npm ci
-npm run check                           # verifiche della logica del frontend
 npm run typecheck
-cargo test -p typst-core -p typster     # test del core e del guscio
 npm run tauri build -- --no-bundle      # eseguibile in target/release/typster.exe
 ```
 

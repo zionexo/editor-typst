@@ -953,22 +953,5 @@ fn testo_blocco(b: &Blocco) -> String {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn escape_speciali() {
-        assert_eq!(esc("a#b$c%d&e_f{g}h~i^j\\k"), "a\\#b\\$c\\%d\\&e\\_f\\{g\\}h\\textasciitilde{}i\\textasciicircum{}j\\textbackslash{}k");
-        assert_eq!(esc("“ciao” l’altro"), "``ciao'' l'altro");
-        assert_eq!(esc("a<b>c|d"), "a\\textless{}b\\textgreater{}c\\textbar{}d");
-    }
-
-    #[test]
-    fn url_e_label_sicuri() {
-        assert_eq!(
-            url_latex("https://a.it/x%20y#z"),
-            "https://a.it/x\\%20y\\#z"
-        );
-        assert!(!etichetta("fig:a b}\\").contains(['}', '\\', ' ']));
-    }
-}
+#[path = "../../tests/unit/conversione_latex.rs"]
+mod test;

@@ -709,33 +709,5 @@ impl<'d> Rend<'d> {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn escape_completo() {
-        assert_eq!(
-            esc("<a href=\"x\">&'"),
-            "&lt;a href=&quot;x&quot;&gt;&amp;&#39;"
-        );
-    }
-
-    #[test]
-    fn url_pericolosi_rifiutati() {
-        assert!(url_sicuro("javascript:alert(1)").is_none());
-        assert!(url_sicuro("  JaVa\tScRiPt:alert(1)").is_none());
-        assert!(url_sicuro("data:text/html;base64,AAAA").is_none());
-        assert!(url_sicuro("vbscript:x").is_none());
-        assert_eq!(url_sicuro("https://a.it/x?y=1"), Some("https://a.it/x?y=1"));
-        assert_eq!(url_sicuro("img/a.png"), Some("img/a.png"));
-        assert_eq!(url_sicuro("#ancora"), Some("#ancora"));
-        assert_eq!(url_sicuro("mailto:a@b.it"), Some("mailto:a@b.it"));
-    }
-
-    #[test]
-    fn id_etichetta_iniettivo_e_sicuro() {
-        assert_eq!(id_da_etichetta("fig:profilo"), "et-fig_3a_profilo");
-        assert_ne!(id_da_etichetta("a:b"), id_da_etichetta("a-b"));
-        assert!(!id_da_etichetta("\"><script>").contains('<'));
-    }
-}
+#[path = "../../tests/unit/conversione_html.rs"]
+mod test;

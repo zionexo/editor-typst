@@ -210,22 +210,12 @@ pub fn data_uri(mime: &str, dati: &[u8]) -> String {
 }
 
 #[cfg(test)]
-mod test_comuni {
-    use super::*;
-
-    #[test]
-    fn data_uri_base64() {
-        assert_eq!(
-            data_uri("text/plain", b"Man"),
-            "data:text/plain;base64,TWFu"
-        );
-        assert_eq!(data_uri("x/y", b"Ma"), "data:x/y;base64,TWE=");
-        assert_eq!(data_uri("x/y", b"M"), "data:x/y;base64,TQ==");
-        assert_eq!(data_uri("x/y", b""), "data:x/y;base64,");
-    }
-}
+#[path = "../../tests/unit/conversione_mod.rs"]
+mod test_comuni;
 
 #[cfg(test)]
+#[path = "../../tests/unit/conversione_test_correzioni.rs"]
 mod test_correzioni;
 #[cfg(test)]
+#[path = "../../tests/unit/conversione_test_costrutti.rs"]
 mod test_costrutti;
