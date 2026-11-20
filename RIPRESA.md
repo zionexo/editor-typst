@@ -66,10 +66,10 @@ Ultimo build di produzione **2026-11-19 17:49**, versione 0.1.1 (aggiunge **Cerc
 `2ACA21B18725156633B7C2D3F0562A9689E15517241066E8AC3374EC54A1863F`, con `WebView2Loader.dll` (160.320 byte,
 invariata). Copie in **`dist\`** (exe + DLL, decisione dell'utente 2026-11-17: `dist\` è la cartella della
 release di produzione) e in `C:\Users\<utente>\et_target\release\`. `dist\` è ignorata da git.
-**`release\` è INDIETRO**: contiene ancora l'exe del 2026-11-17 (SHA-256 `0947C08A…`, senza Cerca, Incolla
-immagine e Diagramma di flusso), zip `Typster-0.1.1-windows-x64.zip` e `SHA256SUMS.txt` compresi. Si
-aggiorna solo se l'utente lo chiede (il nome 0.1.1 contiene già exe diversi; versione non incrementata).
-Nessun `git push` fatto.
+**`release\` è allineato** (2026-11-20, su richiesta dell'utente): `typster.exe` identico a quello di `dist\`
+(SHA-256 `2ACA21B1…863F`), `WebView2Loader.dll` invariata, `Typster-0.1.1-windows-x64.zip` rifatto con i due
+file e `SHA256SUMS.txt` rigenerato (verifica: `cd release; sha256sum -c SHA256SUMS.txt`). Il nome 0.1.1
+contiene ormai exe diversi: versione non incrementata. Nessun `git push` fatto.
 Restano archivio `output\release\*.zip` 0.1.0 e i `.msix` 0.1.0.0, vecchi e da rigenerare.
 **Nuova finestra** (2026-11-17): `Ctrl+Maiusc+N` o palette «Nuova finestra» avvia **un altro processo**
 Typster (comando Rust `nuova_finestra` in `src-tauri/src/lib.rs`: `spawn` di `current_exe()`, senza attesa;
