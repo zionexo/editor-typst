@@ -17,10 +17,12 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
 import { ask } from "@tauri-apps/plugin-dialog";
 import { attendiCondizione, regoleStampa } from "./stampa";
 import "./stili/stampa.css";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   creaEditor,
@@ -1097,6 +1099,20 @@ elemento<HTMLButtonElement>("btn-salva-con-nome").addEventListener(
   (): void => void gestoreFile.salvaConNome(),
 );
 elemento<HTMLButtonElement>("btn-cerca").addEventListener("click", (): void => editor.apriRicerca());
+
+// Trascinare un file (.typ/.md) o una cartella sulla finestra lo apre; con più elementi, il primo.
+void getCurrentWebview().onDragDropEvent((ev): void => {
+  if (ev.payload.type === "drop" && ev.payload.paths.length > 0) {
+    void gestoreFile.apriTrascinato(ev.payload.paths[0]);
+  }
+});
+
+// Versione del programma accanto al nome (letta da tauri.conf.json); se non disponibile, il nome resta da solo.
+void getVersion()
+  .then((v): void => {
+    elemento<HTMLSpanElement>("versione").textContent = `v${v}`;
+  })
+  .catch((): void => undefined);
 btnEsporta.addEventListener("click", (): void => void esportaConFeedback("pdf"));
 btnStampa.addEventListener("click", (): void => void stampaDocumento());
 elemento<HTMLButtonElement>("avvisi-conversione-chiudi").addEventListener("click", (): void => {

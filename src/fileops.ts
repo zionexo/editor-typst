@@ -128,6 +128,11 @@ export interface GestoreFile {
    */
   apriCartella(): Promise<void>;
   /**
+   * Apre un elemento trascinato sulla finestra (percorso assoluto): un file `.typ`/`.md` come «Apri», altrimenti
+   * una cartella come «Apri cartella». Le modifiche non salvate sono protette come nelle altre aperture.
+   */
+  apriTrascinato(percorso: string): Promise<void>;
+  /**
    * Apre come documento un file `.typ`/`.md` della cartella-progetto già
    * agganciata, mantenendone la radice (indice e albero dei file, F5-020/F5-021).
    * `relativo` è il percorso relativo alla radice, con `/`. Prima mette al sicuro
@@ -481,19 +486,28 @@ export function creaGestoreFile(
     }
   }
 
-  /** Apre un sorgente Typst/Markdown e lo carica nell'editor. */
+  /** Apre un sorgente Typst/Markdown scelto con il dialogo e lo carica nell'editor. */
   async function apri(): Promise<void> {
+    let scelto: string | null;
     try {
       // Con `multiple: false` il dialog ritorna `string | null` (null se annullato).
-      const scelto = await open({
+      scelto = (await open({
         multiple: false,
         directory: false,
         filters: FILTRI_APERTURA,
-      });
-      if (scelto === null) {
-        return; // annullato dall'utente
-      }
-      const percorsoScelto = scelto as string;
+      })) as string | null;
+    } catch (e) {
+      onErrore(e);
+      return;
+    }
+    if (scelto !== null) {
+      await apriPercorso(scelto);
+    }
+  }
+
+  /** Apre il sorgente Typst/Markdown `percorsoScelto` e lo carica nell'editor. */
+  async function apriPercorso(percorsoScelto: string): Promise<void> {
+    try {
       // Prima di toccare il World e l'editor: le modifiche non salvate sono al sicuro.
       if (!(await proteggiModifiche("sostituire"))) {
         return;
@@ -542,17 +556,27 @@ export function creaGestoreFile(
     }
   }
 
-  /** Apre una cartella-progetto: rileva l'entrypoint e lo adotta come documento. */
+  /** Apre una cartella-progetto scelta con il dialogo: rileva l'entrypoint e lo adotta come documento. */
   async function apriCartella(): Promise<void> {
+    let cartella: string | null;
     try {
-      const cartella = await open({
+      cartella = (await open({
         multiple: false,
         directory: true,
         title: "Apri una cartella-progetto",
-      });
-      if (cartella === null) {
-        return; // annullato dall'utente
-      }
+      })) as string | null;
+    } catch (e) {
+      onErrore(e);
+      return;
+    }
+    if (cartella !== null) {
+      await apriCartellaPercorso(cartella);
+    }
+  }
+
+  /** Apre la cartella-progetto `cartella`: rileva l'entrypoint e lo adotta come documento. */
+  async function apriCartellaPercorso(cartella: string): Promise<void> {
+    try {
       if (!(await proteggiModifiche("sostituire"))) {
         return;
       }
@@ -564,6 +588,26 @@ export function creaGestoreFile(
       adotta(ris.entrypoint, ris.contenuto);
     } catch (e) {
       onErrore(e);
+    }
+  }
+
+  /** Elemento trascinato sulla finestra in elaborazione: un secondo rilascio durante le domande è ignorato. */
+  let aperturaTrascinata = false;
+
+  /** Apre ciò che è stato trascinato sulla finestra: un file .typ/.md, altrimenti una cartella-progetto. */
+  async function apriTrascinato(trascinato: string): Promise<void> {
+    if (aperturaTrascinata) {
+      return;
+    }
+    aperturaTrascinata = true;
+    try {
+      if (/\.(typ|md)$/i.test(trascinato)) {
+        await apriPercorso(trascinato);
+      } else {
+        await apriCartellaPercorso(trascinato);
+      }
+    } finally {
+      aperturaTrascinata = false;
     }
   }
 
@@ -1236,6 +1280,7 @@ export function creaGestoreFile(
     nuovo,
     nuovoDa,
     apri,
+    apriTrascinato,
     apriCartella,
     apriFileProgetto,
     salva,

@@ -17,6 +17,8 @@
 //! su un thread dedicato tramite `tauri::async_runtime::spawn_blocking`,
 //! così il thread UI (e il reactor async) restano liberi durante la compilazione.
 
+#[cfg(windows)]
+mod jumplist;
 mod osservatore;
 
 use std::path::Path;
@@ -1661,6 +1663,9 @@ fn blocca_navigazione<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     installa_panic_hook();
+    // AppUserModelID e Jump List («Nuova finestra»): prima di creare le finestre.
+    #[cfg(windows)]
+    jumplist::imposta();
     let mondo = EditorWorld::nuovo("");
     // Handle sui font, preso prima di consegnare il World al Mutex.
     let font = mondo.font_precaricabili();

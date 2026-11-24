@@ -78,7 +78,7 @@
         background: var(--pannello);
         display: flex;
         align-items: center;
-        gap: 8px; /* era 12: compensa il pallino di salvataggio (+18 px) per non far crescere la barra a 1280 px */
+        gap: 6px; /* compatto: la barra, con gruppi, versione e nome del file, deve stare su una riga a 1280 px */
         border-bottom: 1px solid var(--bordo);
       }
       header h1 {
@@ -87,16 +87,34 @@
         font-weight: 600;
         color: var(--accento);
       }
+      /* Versione accanto al nome del programma (riempita da main.ts). */
+      #versione {
+        margin-left: -2px;
+        font-size: 0.75rem;
+        color: var(--testo-tenue);
+        white-space: nowrap;
+      }
+      /* Separatore fra i gruppi di pulsanti: linea sottile, i margini negativi compensano il gap. */
+      header .separatore {
+        flex: none;
+        align-self: stretch;
+        width: 1px;
+        margin: 2px 0;
+        background: var(--bordo);
+      }
+      /* Aspetto e Opzioni (impostazioni) stanno a destra. */
+      header button#btn-aspetto { margin-left: auto; }
       /* Pulsanti dell'header: stile di base (secondario). */
       header button {
-        padding: 6px 14px;
+        padding: 6px 8px;
+        white-space: nowrap;
         background: var(--bordo);
         color: var(--testo);
         border: none;
         border-radius: 6px;
         font-weight: 600;
         cursor: pointer;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
       }
       header button:hover { background: var(--rilievo); }
       header button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -106,9 +124,9 @@
       /* «Opzioni»: solo icona (nome accessibile in aria-label/title), per non far andare a capo l'header a 1280 px. */
       header button#btn-opzioni { display: inline-flex; align-items: center; justify-content: center; }
       .icona-opzioni { display: block; }
-      /* Nome del file corrente: spinto a destra, seguito dallo stato. */
+      /* Nome del file corrente: a destra della striscia sopra l'editor, seguito dallo stato. */
       #file-corrente {
-        margin-left: auto;
+        margin-right: auto;
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -119,7 +137,7 @@
         color: var(--testo);
         /* Un nome lungo si accorcia con i puntini (nome intero nel title) invece di mandare a capo la barra. */
         flex: none;
-        max-width: 24ch;
+        max-width: 32ch;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -171,13 +189,24 @@
       }
 
       /* Barra di formattazione (sopra l'editor) */
+      /* Striscia sopra l'editor, su due righe: nome del file e stato (sempre visibili, anche nei documenti
+         Markdown) e sotto la barra di formattazione (nascosta nei documenti Markdown). Nella barra in alto
+         non c'è più spazio per il nome del file. */
+      #barra-documento {
+        background: var(--pannello);
+        border-bottom: 1px solid var(--bordo);
+      }
+      #linea-file {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 12px;
+      }
       #barra-formattazione {
         display: flex;
         align-items: center;
         gap: 4px;
-        padding: 6px 8px;
-        background: var(--pannello);
-        border-bottom: 1px solid var(--bordo);
+        padding: 0 8px 6px;
         flex-wrap: wrap;
       }
       #barra-formattazione button {
@@ -538,22 +567,25 @@
     <header>
       <button id="btn-barra" aria-label="Barra laterale" aria-controls="barra" aria-expanded="false" title="Mostra o nascondi la barra laterale (Ctrl+Shift+B)">Barra</button>
       <h1>Typster</h1>
+      <span id="versione"></span>
+      <span class="separatore" role="separator" aria-orientation="vertical"></span>
       <button id="btn-nuovo" title="Nuovo documento (Ctrl+N)">Nuovo</button>
       <button id="btn-apri" title="Apri un file .typ o .md (Ctrl+O)">Apri</button>
       <button id="btn-apri-cartella" title="Apri una cartella-progetto (Ctrl+Shift+O)">Apri cartella</button>
       <button id="btn-salva" title="Salva il documento (Ctrl+S)">Salva</button>
       <button id="btn-salva-con-nome" title="Salva con nome (Ctrl+Shift+S)">Salva con nome</button>
+      <span class="separatore" role="separator" aria-orientation="vertical"></span>
       <button id="btn-cerca" title="Cerca nel documento (Ctrl+F)">Cerca</button>
+      <button id="btn-compila" title="Compila ora">Compila</button>
+      <span class="separatore" role="separator" aria-orientation="vertical"></span>
       <button id="btn-esporta" title="Esporta in PDF (Ctrl+E); PNG, SVG, testo, HTML, LaTeX e Markdown dalla palette comandi">Esporta PDF</button>
       <button id="btn-stampa" title="Stampa il documento formattato">Stampa</button>
-      <button id="btn-compila" title="Compila ora">Compila</button>
+      <button id="btn-converti" title="Converti il documento Typst in Markdown">&rarr; Markdown</button>
+      <span class="separatore" role="separator" aria-orientation="vertical"></span>
       <button id="btn-pacchetti" aria-controls="barra" aria-expanded="false" title="Apri il pannello dei pacchetti di Typst Universe">Pacchetti</button>
       <button id="btn-local" title="Pubblica il documento come pacchetto @local">@local</button>
       <button id="btn-aspetto" aria-label="Aspetto" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-aspetto" title="Aspetto: stile grafico e tema">Aspetto</button>
       <button id="btn-opzioni" aria-label="Opzioni" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-opzioni" title="Opzioni: motore Typst e assistenza alla scrittura"><svg class="icona-opzioni" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.7" fill="currentColor"/><circle cx="11" cy="8" r="1.7" fill="currentColor"/><circle cx="6.5" cy="12" r="1.7" fill="currentColor"/></svg></button>
-      <button id="btn-converti" title="Converti il documento Typst in Markdown">&rarr; Markdown</button>
-      <span id="file-corrente"><span id="pallino-salvataggio"></span><span id="nome-file" aria-live="polite"></span><span id="annuncio-salvataggio" class="visually-hidden" aria-live="polite"></span></span>
-      <span id="stato" style="font-size:0.8rem;color:var(--testo-tenue);" aria-live="polite"></span>
     </header>
     <main>
       <div id="barra" hidden>
@@ -562,18 +594,24 @@
       </div>
       <div id="barra-divisore" role="separator" aria-orientation="vertical" aria-label="Larghezza della barra laterale" tabindex="0" hidden></div>
       <div id="pannello-editor">
-        <div id="barra-formattazione" role="toolbar" aria-label="Formattazione">
-          <button data-comando="grassetto" title="Grassetto" style="font-weight:bold">B</button>
-          <button data-comando="corsivo" title="Corsivo" style="font-style:italic">I</button>
-          <button data-comando="codice" title="Codice inline" style="font-family:monospace">&lt;/&gt;</button>
-          <span class="separatore"></span>
-          <button data-comando="titolo" title="Titolo">Titolo</button>
-          <button data-comando="lista" title="Lista puntata">&bull; Lista</button>
-          <button data-comando="lista-numerata" title="Lista numerata">1. Lista</button>
-          <span class="separatore"></span>
-          <button data-comando="link" title="Collegamento">Link</button>
-          <button data-comando="immagine" title="Immagine">Immagine</button>
-          <button data-comando="tabella" title="Tabella">Tabella</button>
+        <div id="barra-documento">
+          <div id="linea-file">
+            <span id="file-corrente"><span id="pallino-salvataggio"></span><span id="nome-file" aria-live="polite"></span><span id="annuncio-salvataggio" class="visually-hidden" aria-live="polite"></span></span>
+            <span id="stato" style="font-size:0.8rem;color:var(--testo-tenue);" aria-live="polite"></span>
+          </div>
+          <div id="barra-formattazione" role="toolbar" aria-label="Formattazione">
+            <button data-comando="grassetto" title="Grassetto" style="font-weight:bold">B</button>
+            <button data-comando="corsivo" title="Corsivo" style="font-style:italic">I</button>
+            <button data-comando="codice" title="Codice inline" style="font-family:monospace">&lt;/&gt;</button>
+            <span class="separatore"></span>
+            <button data-comando="titolo" title="Titolo">Titolo</button>
+            <button data-comando="lista" title="Lista puntata">&bull; Lista</button>
+            <button data-comando="lista-numerata" title="Lista numerata">1. Lista</button>
+            <span class="separatore"></span>
+            <button data-comando="link" title="Collegamento">Link</button>
+            <button data-comando="immagine" title="Immagine">Immagine</button>
+            <button data-comando="tabella" title="Tabella">Tabella</button>
+          </div>
         </div>
         <!-- Container dell'editor CodeMirror. Niente role/aria qui: CodeMirror
              applica i propri attributi ARIA sull'area editabile interna; un

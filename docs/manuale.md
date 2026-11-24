@@ -104,13 +104,17 @@ chiamata nel documento principale, e le note con suggerimenti aiutano a corregge
 
 - **Nuovo** (`Ctrl+N`), **Apri** (`Ctrl+O`), **Salva** (`Ctrl+S`). Prima di sostituire un
   documento con modifiche non salvate l'app chiede se salvarle.
-- **Nuova finestra** (`Ctrl+Maiusc+N`, o dalla palette): avvia un'altra copia di Typster, con
-  il suo documento. Le impostazioni sono condivise: se le cambi in due finestre, vale l'ultimo
+- **Nuova finestra** (`Ctrl+Maiusc+N`, dalla palette o dal clic destro sull'icona di Typster
+  nella barra delle applicazioni di Windows): avvia un'altra copia di Typster, con il suo
+  documento. Le impostazioni sono condivise: se le cambi in due finestre, vale l'ultimo
   salvataggio.
 - **Apri cartella** (`Ctrl+Maiusc+O`): apre un **progetto** a più file (documenti, immagini,
   dati). Gli `#include`, le immagini e i file di dati si risolvono rispetto alla cartella.
   *Ricarica risorse del progetto* (dalla palette) rilegge i file dopo averli modificati
   fuori dall'app.
+- **Trascina e rilascia**: trascinando dall'Esplora risorse un file `.typ` o `.md` sulla finestra lo
+  apri come con *Apri*; trascinando una cartella la apri come progetto. Con più elementi si apre il
+  primo. Anche qui, se ci sono modifiche non salvate, l'app chiede se salvarle.
 - **Salvataggio automatico**: si attiva e disattiva dalla palette (*Salvataggio automatico:
   attiva*); salva a riposo dopo l'ultima modifica, per i documenti che hanno già un file.
 - **Cronologia versioni** (dalla palette): l'app conserva copie del documento e permette di
