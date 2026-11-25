@@ -199,7 +199,13 @@ pub struct Impostazioni {
     /// Suggerimento dei parametri durante la digitazione di una chiamata.
     /// Predefinito `true`; campo assente o non booleano → `true`.
     pub suggerimento_parametri: bool,
+    /// Percorsi assoluti dei documenti o delle cartelle aperti di recente, il
+    /// più recente per primo, al massimo [`MAX_RECENTI`]. Predefinito: vuoto.
+    pub recenti: Vec<String>,
 }
+
+/// Numero massimo di voci conservate in `recenti`.
+pub const MAX_RECENTI: usize = 10;
 
 impl Default for Impostazioni {
     fn default() -> Self {
@@ -221,6 +227,7 @@ impl Default for Impostazioni {
             modalita_macchina: false,
             help_completamento: true,
             suggerimento_parametri: true,
+            recenti: Vec::new(),
         }
     }
 }
@@ -239,7 +246,8 @@ impl Impostazioni {
     /// `"sistema"`, stile sconosciuto → `"classico"`, `motore_typst` non ammesso → `"lezer"`, `dimensione_font` in 8..=72, `debounce_ms` in 50..=5000,
     /// `autosave_ms` in 500..=60000, `cronologia_max_versioni` in 1..=1000,
     /// `cronologia_intervallo_s` in 0..=86400, `barra_larghezza` in 160..=600,
-    /// `pannello_attivo` non valido → `"indice"`.
+    /// `pannello_attivo` non valido → `"indice"`, `recenti` senza voci vuote e
+    /// al massimo [`MAX_RECENTI`] (si tengono le prime).
     /// Applicata in lettura e in salvataggio.
     pub fn normalizza(mut self) -> Self {
         if !TEMI.contains(&self.tema.as_str()) {
@@ -263,6 +271,8 @@ impl Impostazioni {
         if !id_pannello_valido(&self.pannello_attivo) {
             self.pannello_attivo = Self::default().pannello_attivo;
         }
+        self.recenti.retain(|voce| !voce.trim().is_empty());
+        self.recenti.truncate(MAX_RECENTI);
         self
     }
 
@@ -305,6 +315,17 @@ impl Impostazioni {
                 "suggerimento_parametri",
                 d.suggerimento_parametri,
             ),
+            // Elenco tollerante: gli elementi non stringa si scartano uno a
+            // uno (un `campo` tutto-o-niente perderebbe l'intero elenco).
+            recenti: mappa
+                .get("recenti")
+                .and_then(serde_json::Value::as_array)
+                .map(|voci| {
+                    voci.iter()
+                        .filter_map(|v| v.as_str().map(str::to_string))
+                        .collect()
+                })
+                .unwrap_or(d.recenti),
         }
         .normalizza()
     }

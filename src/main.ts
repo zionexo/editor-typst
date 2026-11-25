@@ -46,6 +46,7 @@ import "./stili/composizione.css";
 import "./stili/strumento.css";
 import "./stili/menu-aspetto.css";
 import "./stili/menu-opzioni.css";
+import "./stili/menu-recenti.css";
 import "./stili/pannello-strumenti.css";
 import {
   applicaStileSpecchiato,
@@ -60,6 +61,7 @@ import {
 } from "./aspetto";
 import { creaMenuAspetto, type MenuAspetto } from "./menu-aspetto";
 import { creaMenuOpzioni, type MenuOpzioni } from "./menu-opzioni";
+import { creaMenuRecenti } from "./menu-recenti";
 import { MOTORI, titoloComandoMotore } from "./motore";
 import { STILI, etichettaStile } from "./stile";
 import { creaAnteprima, type Anteprima, type MetadatiPagina, type PaginaSvg } from "./anteprima";
@@ -1517,6 +1519,12 @@ menuOpzioni = creaMenuOpzioni(
   elemento<HTMLButtonElement>("btn-opzioni"),
   elemento<HTMLElement>("menu-opzioni"),
   () => editor.focus(),
+);
+// Recenti: la scelta riapre il file o la cartella con la stessa regola del trascinamento.
+creaMenuRecenti(
+  elemento<HTMLButtonElement>("btn-recenti"),
+  elemento<HTMLElement>("menu-recenti"),
+  (percorso) => void gestoreFile.apriTrascinato(percorso).then(() => editor.focus()),
 );
 
 // File modificati da fuori (F5-022): il guscio decide, qui si applica. `invalida`

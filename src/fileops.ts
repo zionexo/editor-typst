@@ -52,7 +52,8 @@ import {
   testoErroreEsportazione,
 } from "./opzioniesporta";
 import type { EsitoConversione, FormatoEsportazione, OpzioniEsportazione } from "./opzioniesporta";
-import { leggiImpostazioni, salvaImpostazioni } from "./impostazioni";
+import { caricaImpostazioni, leggiImpostazioni, salvaImpostazioni } from "./impostazioni";
+import { aggiungiRecente, eSorgente } from "./recenti";
 import { avvisoTipoDopoRinomina, azioneDopoSparito, confrontaPercorsi, discoInvariato, ricaricaSuperflua, motivoNonRipristinato, stessoPercorso } from "./modificheesterne";
 import { impostaTestoConRicompilazione } from "./ciclocompilazione";
 import type { EventoEsterno } from "./modificheesterne";
@@ -534,9 +535,17 @@ export function creaGestoreFile(
       modificato = false;
       fileSparito = false;
       notifica();
+      ricordaRecente(percorsoScelto);
     } catch (e) {
       onErrore(e);
     }
+  }
+
+  /** Mette `percorso` in testa ai documenti recenti. Un errore di scrittura non disturba l'apertura. */
+  function ricordaRecente(percorso: string): void {
+    void caricaImpostazioni()
+      .then(() => salvaImpostazioni({ recenti: aggiungiRecente(leggiImpostazioni().recenti, percorso) }))
+      .catch((): void => undefined);
   }
 
   /** Apre un file della cartella-progetto già agganciata (radice invariata). */
@@ -586,6 +595,7 @@ export function creaGestoreFile(
       );
       // Adotta l'entrypoint come documento corrente (compilazione dal debounce).
       adotta(ris.entrypoint, ris.contenuto);
+      ricordaRecente(cartella);
     } catch (e) {
       onErrore(e);
     }
@@ -594,14 +604,14 @@ export function creaGestoreFile(
   /** Elemento trascinato sulla finestra in elaborazione: un secondo rilascio durante le domande è ignorato. */
   let aperturaTrascinata = false;
 
-  /** Apre ciò che è stato trascinato sulla finestra: un file .typ/.md, altrimenti una cartella-progetto. */
+  /** Apre un percorso trascinato sulla finestra o scelto dai recenti: un file .typ/.md, altrimenti una cartella-progetto. */
   async function apriTrascinato(trascinato: string): Promise<void> {
     if (aperturaTrascinata) {
       return;
     }
     aperturaTrascinata = true;
     try {
-      if (/\.(typ|md)$/i.test(trascinato)) {
+      if (eSorgente(trascinato)) {
         await apriPercorso(trascinato);
       } else {
         await apriCartellaPercorso(trascinato);

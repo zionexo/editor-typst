@@ -45,6 +45,8 @@ export interface Impostazioni {
   help_completamento: boolean;
   /** Firma della funzione mentre si scrivono gli argomenti. */
   suggerimento_parametri: boolean;
+  /** Percorsi dei file e delle cartelle aperti di recente: al massimo 10, il più recente per primo. */
+  recenti: string[];
 }
 
 /** Valori di ripiego, allineati a `Impostazioni::default()` del core. */
@@ -66,6 +68,7 @@ export const PREDEFINITE: Readonly<Impostazioni> = {
   motore_typst: MOTORE_PREDEFINITO,
   help_completamento: true,
   suggerimento_parametri: true,
+  recenti: [],
 };
 
 let correnti: Impostazioni = { ...PREDEFINITE };

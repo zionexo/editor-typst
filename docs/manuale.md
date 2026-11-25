@@ -104,6 +104,10 @@ chiamata nel documento principale, e le note con suggerimenti aiutano a corregge
 
 - **Nuovo** (`Ctrl+N`), **Apri** (`Ctrl+O`), **Salva** (`Ctrl+S`). Prima di sostituire un
   documento con modifiche non salvate l'app chiede se salvarle.
+- **Documenti recenti** (la freccia ▾ accanto a **Apri**): elenco degli ultimi 10 file e
+  cartelle-progetto aperti, con **Apri**, **Apri cartella** o trascinandoli sulla finestra. Un clic
+  sulla voce la riapre; con la tastiera: freccia giù per aprire il menu, frecce per scorrere,
+  Invio per scegliere, Esc per chiudere. L'elenco è salvato nelle impostazioni.
 - **Nuova finestra** (`Ctrl+Maiusc+N`, dalla palette o dal clic destro sull'icona di Typster
   nella barra delle applicazioni di Windows): avvia un'altra copia di Typster, con il suo
   documento. Le impostazioni sono condivise: se le cambi in due finestre, vale l'ultimo

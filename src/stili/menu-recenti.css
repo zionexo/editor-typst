@@ -1,0 +1,56 @@
+/* ==========================================================================
+   Menu dei documenti recenti: popover sotto la freccia accanto ad «Apri».
+   Riusa i token correnti (si adatta allo stile attivo). Nessuna risorsa esterna,
+   nessuno stile inline (CSP B-005); transizioni solo senza `prefers-reduced-motion: reduce`.
+   ========================================================================== */
+
+.menu-recenti {
+  position: fixed;
+  z-index: 110;
+  top: 0;
+  left: 0;
+  width: min(460px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--pannello);
+  color: var(--testo);
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px var(--ombra);
+  font-size: 0.85rem;
+}
+.menu-recenti[hidden] { display: none; }
+
+.mr-voce {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.mr-voce:hover { background: var(--sfondo); }
+.mr-voce:focus-visible {
+  outline: 2px solid var(--fuoco);
+  outline-offset: -2px;
+}
+
+.mr-nome { font-weight: 600; color: var(--testo); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mr-tipo {
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid var(--bordo);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--testo-2);
+}
+.mr-cartella { font-size: 0.75rem; color: var(--testo-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mr-vuoto { padding: 8px 10px; color: var(--testo-2); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .mr-voce { transition: background-color 0.12s; }
+}

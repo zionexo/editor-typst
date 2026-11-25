@@ -124,6 +124,8 @@
       /* «Opzioni»: solo icona (nome accessibile in aria-label/title), per non far andare a capo l'header a 1280 px. */
       header button#btn-opzioni { display: inline-flex; align-items: center; justify-content: center; }
       .icona-opzioni { display: block; }
+      /* «▾» dei recenti: attaccata ad «Apri», stretta per non far andare a capo l'header a 1280 px. */
+      header button#btn-recenti { padding: 6px 5px; margin-left: -4px; }
       /* Nome del file corrente: a destra della striscia sopra l'editor, seguito dallo stato. */
       #file-corrente {
         margin-right: auto;
@@ -571,6 +573,7 @@
       <span class="separatore" role="separator" aria-orientation="vertical"></span>
       <button id="btn-nuovo" title="Nuovo documento (Ctrl+N)">Nuovo</button>
       <button id="btn-apri" title="Apri un file .typ o .md (Ctrl+O)">Apri</button>
+      <button id="btn-recenti" aria-label="Documenti recenti" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-recenti" title="Documenti recenti">&#9662;</button>
       <button id="btn-apri-cartella" title="Apri una cartella-progetto (Ctrl+Shift+O)">Apri cartella</button>
       <button id="btn-salva" title="Salva il documento (Ctrl+S)">Salva</button>
       <button id="btn-salva-con-nome" title="Salva con nome (Ctrl+Shift+S)">Salva con nome</button>
@@ -723,6 +726,8 @@
     <div id="menu-aspetto" class="menu-aspetto" role="dialog" aria-label="Aspetto" hidden></div>
     <!-- Menu «Opzioni» (motore di evidenziazione Typst): popover riempito da src/menu-opzioni.ts -->
     <div id="menu-opzioni" class="menu-opzioni" role="dialog" aria-label="Opzioni" hidden></div>
+    <!-- Menu dei documenti recenti: popover riempito da src/menu-recenti.ts -->
+    <div id="menu-recenti" class="menu-recenti" role="menu" aria-label="Documenti recenti" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
