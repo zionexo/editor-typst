@@ -1,3 +1,3 @@
-0f6f7a142857d1f883a1cb3ede275dec316cb9d75fdf4bfc693fdffea591930b  typster.exe
-28665ad807d7666b3af287d1c59df224332e09d0532131ab4249f4e26370c139  Typster-0.2.1-windows-x64.zip
+c78a7c086615d4e8e74ec6b2279f8c799c3bdc854b8bbac46b0db1e9fe72dba3  typster.exe
+9e9bec199cc1f91bfebb8fb0b9d417bde7e2348f9bcfe7f5027a5112fb1d9ee2  Typster-0.2.1-windows-x64.zip
 8427b1fc58ec707813e5c0a51eb5d69397bb333250a7b891be4d3b123f1e0f1c  WebView2Loader.dll
