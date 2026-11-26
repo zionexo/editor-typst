@@ -1,6 +1,6 @@
 # Manuale di Typster
 
-Versione 0.2.1 — per Windows.
+Versione 0.2.2 — per Windows.
 
 Typster è un editor per [Typst](https://typst.app): scrivi a sinistra, vedi il documento
 impaginato a destra. Questo manuale spiega come usarlo, dalle prime righe fino agli

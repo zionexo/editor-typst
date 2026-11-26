@@ -1,6 +1,6 @@
 [package]
 name    = "typst-core"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 
 # Nessuna dipendenza da tauri: il crate deve restare puro e testabile headless.

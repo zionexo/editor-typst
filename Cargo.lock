@@ -5290,7 +5290,7 @@ dependencies = [
 
 [[package]]
 name = "typst-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "chrono",
  "dirs",
@@ -5669,7 +5669,7 @@ dependencies = [
 
 [[package]]
 name = "typster"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "serde",
  "tauri",
